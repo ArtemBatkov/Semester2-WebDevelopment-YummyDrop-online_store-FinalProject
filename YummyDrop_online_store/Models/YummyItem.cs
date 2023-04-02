@@ -7,7 +7,7 @@
     {
         public int Id { get => _id; set => _id = value; }
         public string Name { get => _name; set => _name = value; }
-        public double DropChance { get => _dropChance; }
+        public double DropChance { get => _dropChance; set => _dropChance = value; }
 
         public decimal Cost { get => _cost; set => _cost = value; }
 
