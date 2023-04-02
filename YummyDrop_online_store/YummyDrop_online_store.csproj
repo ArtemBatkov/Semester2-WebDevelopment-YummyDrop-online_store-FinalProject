@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="bunit" Version="1.18.4" />
+  </ItemGroup>
+
 </Project>
