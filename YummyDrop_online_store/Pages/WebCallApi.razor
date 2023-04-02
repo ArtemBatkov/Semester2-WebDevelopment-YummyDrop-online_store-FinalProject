@@ -1,0 +1,62 @@
+﻿@page "/call-web-api"
+@using YummyDrop_online_store.Models;
+@using YummyDrop_online_store.Services.RandomizeService;
+@inject IRandomizeService service; 
+
+<div>
+    <h1>This Api allows you to press the button and randomize an item</h1>
+    <button @onclick="onGetRandomYummyItem"  style="border-radius: 10px;">Randomize YummyItem</button>
+
+    @if (yummyItem != null)
+    {
+        <div>
+            <label>Id:</label>
+            <label>@yummyItem.Id</label>
+        </div>
+        <div>
+            <label>Name:</label>
+            <label>@yummyItem.Name</label>
+        </div>
+        <div>
+            <label>Cost:</label>
+            <label>@yummyItem.Cost</label>
+        </div>
+        <div>
+            <label>DropChance:</label>
+            <label>@yummyItem.DropChance</label>
+        </div>
+    }
+
+
+
+</div>
+
+
+
+@code {
+    private YummyItem yummyItem; 
+
+    private void onGetRandomYummyItem()
+    {
+        var items = GenerateYummyItemsList(1);
+        yummyItem = service.GetRandomYummyItem(items);
+        yummyItem.DropChance = (double.IsInfinity(yummyItem.DropChance)) ? 100 : yummyItem.DropChance;
+
+    }
+
+    private List<YummyItem> GenerateYummyItemsList(int q)
+    {
+        var items = new List<YummyItem>();
+        for (int i = 0; i < q; i++)
+        {
+            items.Add(new YummyItem()
+                {
+                    Id = i,
+                    Name = $"Yummy_i",
+                    DropChance = 100 * (1 / (Math.Log(i + q))),
+                    Cost = i
+                });
+        }
+        return items;
+    }
+}
