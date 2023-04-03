@@ -1,7 +1,9 @@
 ﻿@page "/call-web-api"
 @using YummyDrop_online_store.Models;
 @using YummyDrop_online_store.Services.RandomizeService;
-@inject IRandomizeService service; 
+@using YummyDrop_online_store.Services.GeneratorService;
+@inject IRandomizeService randomizer; 
+@inject IGeneratorService generator; 
 
 <div>
     <h1>This Api allows you to press the button and randomize an item</h1>
@@ -38,25 +40,11 @@
 
     private void onGetRandomYummyItem()
     {
-        var items = GenerateYummyItemsList(1);
-        yummyItem = service.GetRandomYummyItem(items);
+        var items = generator.GenerateYummyItemsList(3);
+        yummyItem = randomizer.GetRandomYummyItem(items);
         yummyItem.DropChance = (double.IsInfinity(yummyItem.DropChance)) ? 100 : yummyItem.DropChance;
 
     }
 
-    private List<YummyItem> GenerateYummyItemsList(int q)
-    {
-        var items = new List<YummyItem>();
-        for (int i = 0; i < q; i++)
-        {
-            items.Add(new YummyItem()
-                {
-                    Id = i,
-                    Name = $"Yummy_i",
-                    DropChance = 100 * (1 / (Math.Log(i + q))),
-                    Cost = i
-                });
-        }
-        return items;
-    }
+   
 }
