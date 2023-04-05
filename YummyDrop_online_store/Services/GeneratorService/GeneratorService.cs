@@ -4,7 +4,7 @@ namespace YummyDrop_online_store.Services.GeneratorService
 {
     public class GeneratorService: IGeneratorService
     {
-        public List<YummyItem> GenerateYummyItemsList(int q)
+        public List<YummyItem> GenerateYummyItemsList(int q = 100)
         {
             var items = new List<YummyItem>(q);
             var a = 10;
