@@ -21,22 +21,22 @@ internal class Program
 
 
         builder.Services.AddHttpClient();
-        builder.Services.AddScoped<IRandomizeService, RandomizeSerivce>();
+        builder.Services.AddSingleton<IRandomizeService, RandomizeSerivce>();
 
-        builder.Services.AddScoped<IGeneratorService, GeneratorService>();
+        builder.Services.AddSingleton<IGeneratorService, GeneratorService>();
 
-       
+
 
         //add controllers
-        //builder.Services.AddControllers().AddJsonOptions(options =>
-        //{
-        //    options.JsonSerializerOptions.WriteIndented = true;
-        //});
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.WriteIndented = true;
+        });
 
         //builder.Services.AddScoped<YummyAPIController>();
+        builder.Services.AddSingleton<YummyAPIController>();
 
-        
-       
+
 
         var app = builder.Build();
 
