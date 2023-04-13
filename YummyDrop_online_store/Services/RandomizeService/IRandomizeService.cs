@@ -9,10 +9,11 @@ namespace YummyDrop_online_store.Services.RandomizeService
     public interface IRandomizeService
     {
         /// <summary>
-        /// Function selects the random item in the list
+        /// Method return a random id
         /// </summary>
-        /// <param name="items">List of YummyItem objects</param>
-        /// <returns>Random YummyItem object</returns>
-        public YummyItem GetRandomYummyItem(List<YummyItem> items);
+        /// <param name="ids">List of ids</param>
+        /// <param name="IsPsevdo">Predicted value? False is default</param>
+        /// <returns>A random id</returns>
+        public int GetRandomId(List<int> ids, bool IsPsevdo = false);
     }
 }

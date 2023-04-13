@@ -1,0 +1,155 @@
+﻿@page "/find-your-loot"
+@using YummyDrop_online_store.Models;
+@using YummyDrop_online_store.Services.RandomizeService;
+@using YummyDrop_online_store.Services.GeneratorService;
+@inject IRandomizeService randomizer;
+@inject IGeneratorService generator;
+
+<div>
+    <h1>Randomize an item from the loot box!</h1>
+    <button @onclick="onGetRandomYummyItem" style="border-radius: 10px;">Randomize YummyItem</button>
+    
+    <button @onclick="onGetUntilLemonWillNotBeDropped" style="border-radius: 10px;">Randomize Until Get My Lemon!</button>
+
+    <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
+
+    @if (yummyItem != null)
+    {
+        <div style="margin-bottom: 10px;">
+            <label>You tried: @tries time(s)</label>
+        </div>
+
+        <div>
+            <label>Id:</label>
+            <label>@yummyItem.Id</label>
+        </div>
+        <div>
+            <label>Name:</label>
+            <label>@yummyItem.Name</label>
+        </div>
+        <div>
+            <label>Cost:</label>
+            <label>$@yummyItem.Cost</label>
+        </div>
+        <div>
+            <label>DropChance:</label>
+            <label>@yummyItem.DropChance%</label>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <img src=@yummyItem.Image alt="Yummy Image" style="max-width: 150px; max-height: 150px;" />
+        </div>
+            
+
+        <div style="margin-top: 15px;">
+            <label>Your statistic is</label>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="padding: 0 75px;">Yummy Name</th>
+                        <th style="padding: 0 75px;">Drop Quantity</th>
+                        <th style="padding: 0 75px;">Theoretical Drop Chance</th>
+                        <th style="padding: 0 75px;">Actual Drop Chance</th>                        
+                    </tr>
+                </thead>
+                <tbody>                     
+                    @foreach (var item in statistics)
+                    {
+                        <tr>
+                            <td style="padding: 0 75px;">@item.Key</td>
+                            <td style="padding: 0 75px;">@item.Value</td>
+                            <td style="padding: 0 75px;">@(LootList.FirstOrDefault(x => x.Name == item.Key)?.DropChance.ToString("F2"))%</td>
+                            <td style="padding: 0 75px;">@(((double)item.Value / tries * 100).ToString("F2"))%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
+    }
+    else
+    {
+        <div>
+            <h3>Not randomized yet!</h3>
+        </div>
+    }
+
+
+</div>
+
+
+
+@code {
+    private int tries = 0;
+    private YummyItem yummyItem;
+    private List<YummyItem> LootList = YummyItemList.Yummys;
+    private Dictionary<string, int> statistics = new Dictionary<string, int>();
+
+    public FindYourLoot()
+    {
+        foreach (var item in LootList)
+        {
+            statistics[item.Name] = 0;
+        }
+    }
+
+    private void onGetRandomYummyItem()
+    {
+
+        var Ids = generator.GenerateMillionIds(LootList);
+        int randId = randomizer.GetRandomId(Ids);
+        yummyItem = LootList.Find(x => x.Id == randId);
+        tries++;
+        statistics[yummyItem.Name]++;
+
+
+    }
+
+    private async Task onGetUntilLemonWillNotBeDropped()
+    {
+        tries = 0;
+        ResetDictionary();
+        string LowestChanceDrop = LootList.OrderBy(x => x.DropChance).First().Name;
+        while (statistics[LowestChanceDrop] == 0)
+        {
+            var Ids = generator.GenerateMillionIds(LootList);
+            int randId = randomizer.GetRandomId(Ids);
+            yummyItem = LootList.Find(x => x.Id == randId);
+            tries++;
+            statistics[yummyItem.Name]++;
+
+            
+            await Task.Delay(100);
+            StateHasChanged();
+        }
+    }
+
+    private async Task onGetThousands()
+    {
+        tries = 0;
+        ResetDictionary();
+        for (int i = 0; i < 1000; i++)
+        {
+            var Ids = generator.GenerateMillionIds(LootList);
+            int randId = randomizer.GetRandomId(Ids);
+            yummyItem = LootList.Find(x => x.Id == randId);
+            tries++;
+            statistics[yummyItem.Name]++;
+
+           
+            await Task.Delay(100);
+            StateHasChanged();
+        }
+    }
+
+    private void ResetDictionary()
+    {
+        foreach (var item in LootList)
+        {
+            statistics[item.Name] = 0;
+        }
+    }
+
+
+}

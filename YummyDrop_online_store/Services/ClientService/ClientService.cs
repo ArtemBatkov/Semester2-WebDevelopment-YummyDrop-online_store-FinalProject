@@ -20,11 +20,6 @@ namespace YummyDrop_online_store.Services.ClientService
         }
 
 
-        public  int GetBrowserPort(NavigationManager navigationManager)
-        {
-            var uri = new Uri(navigationManager.BaseUri);
-            var port = uri.Port;
-            return port;
-        }
+        
     }
 }

@@ -38,22 +38,24 @@ namespace YummyDrop_online_store.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            Debug.WriteLine("GET IS NOW!");
-            var random = new Random();
-            var items = _generator.GenerateYummyItemsList(2);
-            called = true;
-            _lastObject1 = items[random.Next(items.Count)];
-            return Ok(_lastObject1);
+            //Debug.WriteLine("GET IS NOW!");
+            //var random = new Random();
+            //var items = _generator.GenerateYummyItemsList();
+            //called = true;
+            //_lastObject1 = items[random.Next(items.Count)];
+            //return Ok(_lastObject1);
+            return Ok("Nothing here");
         }
 
         [HttpGet("getBySize")]
         public IActionResult Get([FromQuery] int q)
         {
-            if (q <= 0) return BadRequest("Quantity should be grater than 0");
+            //if (q <= 0) return BadRequest("Quantity should be grater than 0");
 
-            var random = new Random();
-            var items = _generator.GenerateYummyItemsList(q);
-            return Ok(items[random.Next(items.Count)]);
+            //var random = new Random();
+            //var items = _generator.GenerateYummyItemsList(q);
+            //return Ok(items[random.Next(items.Count)]);
+            return Ok("Nothing here");
         }
     }
 

@@ -4,11 +4,17 @@ namespace YummyDrop_online_store.Services.RandomizeService
 {
     public class RandomizeSerivce : IRandomizeService
     {
-        public YummyItem GetRandomYummyItem(List<YummyItem> items)
+        private static Random random = new Random();
+        public int GetRandomId(List<int> ids, bool IsPsevdo = false)
         {
-            var quantity = items.Count();
-            var random = new Random();
-            return items[random.Next(0, quantity)];
+            var quantity = ids.Count();  
+            if (IsPsevdo)
+            {
+                var seedRand = new Random(1);
+                return ids[seedRand.Next(0, quantity)];
+            }
+            var value = random.Next(0, quantity);
+            return ids[value];
         }
     }
 }

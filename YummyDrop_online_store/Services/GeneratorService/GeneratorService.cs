@@ -1,25 +1,37 @@
 ﻿using YummyDrop_online_store.Models;
+using MoreLinq.Extensions;
 
 namespace YummyDrop_online_store.Services.GeneratorService
 {
-    public class GeneratorService: IGeneratorService
+    public class GeneratorService : IGeneratorService
     {
-        public List<YummyItem> GenerateYummyItemsList(int q = 100)
+
+        public List<int> GenerateMillionIds(List<YummyItem> yummys)
         {
-            var items = new List<YummyItem>(q);
-            var a = 10;
-            for (int i = 0; i < q; i++)
+            int size = 1_000_000;
+            List<int> Ids = new List<int>();
+
+            //take the id with the biggest drop chance
+            int IdWithMaxDropChance = yummys.OrderByDescending(x => x.DropChance).First().Id; 
+            double totalChance = yummys.Sum(x => x.DropChance);
+
+            //fill out the array
+            foreach (var yummy in yummys)
             {
-                double p = 1 / (1 + Math.Exp((q - i) / a)) * 100;
-                items.Add(new YummyItem()
+                int repeates = (int) Math.Floor(yummy.DropChance / totalChance * size);
+                for (int i = 0; i < repeates; i++)
                 {
-                    Id = i,
-                    Name = $"Yummy_{i}",
-                    DropChance = p,
-                    Cost = i
-                });;
+                    Ids.Add(yummy.Id);
+                }
             }
-            return items;
+
+            while (Ids.Count < 1_000_000)
+            {
+                Ids.Add(IdWithMaxDropChance);
+            }
+
+            Ids = Ids.Shuffle().ToList();
+            return Ids;
         }
     }
 }

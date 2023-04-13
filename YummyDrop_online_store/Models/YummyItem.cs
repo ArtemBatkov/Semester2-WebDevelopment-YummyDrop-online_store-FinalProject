@@ -11,9 +11,12 @@
 
         public decimal Cost { get => _cost; set => _cost = value; }
 
+        public string Image { get => _image; set => _image = value; }
+
         private int _id;
         private string _name;
         private double _dropChance;
         private decimal _cost;
+        private string _image;
     }
 }
