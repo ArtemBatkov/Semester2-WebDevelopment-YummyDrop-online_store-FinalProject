@@ -8,6 +8,8 @@ using YummyDrop_online_store.Controllers;
 using System;
 using Moq;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -36,6 +38,10 @@ internal class Program
         //builder.Services.AddScoped<YummyAPIController>();
         builder.Services.AddSingleton<YummyAPIController>();
 
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
 
 
         var app = builder.Build();

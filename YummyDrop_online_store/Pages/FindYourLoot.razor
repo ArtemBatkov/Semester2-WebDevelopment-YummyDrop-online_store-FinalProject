@@ -1,9 +1,12 @@
 ﻿@page "/find-your-loot"
+@using Microsoft.EntityFrameworkCore;
 @using YummyDrop_online_store.Models;
 @using YummyDrop_online_store.Services.RandomizeService;
 @using YummyDrop_online_store.Services.GeneratorService;
+@using YummyDrop_online_store.Data;
 @inject IRandomizeService randomizer;
 @inject IGeneratorService generator;
+@inject ApplicationDbContext context;
 
 <div>
     <h1>Randomize an item from the loot box!</h1>
@@ -83,27 +86,47 @@
 @code {
     private int tries = 0;
     private YummyItem yummyItem;
-    private List<YummyItem> LootList = YummyItemList.Yummys;
+    private List<YummyItem> LootList;
     private Dictionary<string, int> statistics = new Dictionary<string, int>();
 
-    public FindYourLoot()
+    //[Inject]
+    //private ApplicationDbContext context { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
+        var boxes = await context.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
+        var box1 = boxes[0];
+        var boxcont = box1.BoxContent1;
+        LootList = boxcont;
+
         foreach (var item in LootList)
         {
             statistics[item.Name] = 0;
         }
     }
 
+    //public FindYourLoot()
+    //{
+    //    //take box from DB
+    //    var boxes = context.FruitBoxTable.Include(box => box.BoxContent1).ToList();
+    //    var box1 = boxes[0];
+    //    //take yummy items from this box
+    //    var boxcont = box1.BoxContent1;
+    //    LootList = boxcont;
+
+    //    foreach (var item in LootList)
+    //    {
+    //        statistics[item.Name] = 0;
+    //    }
+    //}
+
     private void onGetRandomYummyItem()
     {
-
         var Ids = generator.GenerateMillionIds(LootList);
         int randId = randomizer.GetRandomId(Ids);
         yummyItem = LootList.Find(x => x.Id == randId);
         tries++;
         statistics[yummyItem.Name]++;
-
-
     }
 
     private async Task onGetUntilLemonWillNotBeDropped()
