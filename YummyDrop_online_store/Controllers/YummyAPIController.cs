@@ -4,7 +4,9 @@ using System.ComponentModel;
 using YummyDrop_online_store.Models;
 using YummyDrop_online_store.Services.GeneratorService;
 using System.Diagnostics;
-
+using YummyDrop_online_store.Services.RandomizeService;
+using YummyDrop_online_store.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace YummyDrop_online_store.Controllers
 {
@@ -14,6 +16,9 @@ namespace YummyDrop_online_store.Controllers
     {
        
         private readonly IGeneratorService _generator;
+        private readonly IRandomizeService _randomize;
+        private readonly ApplicationDbContext _dbcontext;
+
         private static YummyItem? _lastObject1 = 
             _lastObject1 = new YummyItem { Name = "Default" };
 
@@ -27,24 +32,48 @@ namespace YummyDrop_online_store.Controllers
             return _lastObject1;
         }
 
-        public YummyAPIController(IGeneratorService generator)
+        private List<YummyItem> LootList = new List<YummyItem>();
+
+
+        public YummyAPIController(IGeneratorService generator, IRandomizeService randomize, ApplicationDbContext dbcontext)
         {
-            _generator = generator;            
+            _generator = generator;    
+            _randomize = randomize;
+            _dbcontext = dbcontext;
+
+            Task.Run(async () =>
+            {
+                await LoadFromDb();
+            }).Wait();
+        }
+
+        private async Task LoadFromDb()
+        {
+            var boxes = await _dbcontext
+                .FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
+            var box1 = boxes[0];
+            var boxcont = box1.BoxContent1;
+            LootList = boxcont;
         }
 
 
-
+        private Random random = new Random();
 
         [HttpGet]
         public IActionResult Get()
         {
-            //Debug.WriteLine("GET IS NOW!");
-            //var random = new Random();
-            //var items = _generator.GenerateYummyItemsList();
-            //called = true;
-            //_lastObject1 = items[random.Next(items.Count)];
-            //return Ok(_lastObject1);
-            return Ok("Nothing here");
+            if (LootList == null) return Ok("Nothing here. Refresh the page!");
+            var shuffledIds = _generator.GenerateMillionIds(LootList);
+            int Id = _randomize.GetRandomId(shuffledIds);
+            YummyItem item = LootList.FirstOrDefault(x => x.Id == Id);
+            if(item == null)
+            {
+                return Ok("Nothing here");
+            }
+            else
+            {
+                return Ok(item);
+            }
         }
 
         [HttpGet("getBySize")]

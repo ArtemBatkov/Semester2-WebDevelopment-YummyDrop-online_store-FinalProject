@@ -35,8 +35,8 @@ internal class Program
             options.JsonSerializerOptions.WriteIndented = true;
         });
 
-        //builder.Services.AddScoped<YummyAPIController>();
-        builder.Services.AddSingleton<YummyAPIController>();
+        builder.Services.AddScoped<YummyAPIController>();
+        //builder.Services.AddSingleton<YummyAPIController>(); //will fire exception
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
