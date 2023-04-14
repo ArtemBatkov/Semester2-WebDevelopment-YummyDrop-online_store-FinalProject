@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.ComponentModel;
-using YummyDrop_online_store.Models;
+
 using YummyDrop_online_store.Services.GeneratorService;
 using System.Diagnostics;
 using YummyDrop_online_store.Services.RandomizeService;
 using YummyDrop_online_store.Data;
 using Microsoft.EntityFrameworkCore;
+using YummySharedLibrary;
+using DbContextSharLab;
 
 namespace YummyDrop_online_store.Controllers
 {
@@ -76,16 +78,7 @@ namespace YummyDrop_online_store.Controllers
             }
         }
 
-        [HttpGet("getBySize")]
-        public IActionResult Get([FromQuery] int q)
-        {
-            //if (q <= 0) return BadRequest("Quantity should be grater than 0");
-
-            //var random = new Random();
-            //var items = _generator.GenerateYummyItemsList(q);
-            //return Ok(items[random.Next(items.Count)]);
-            return Ok("Nothing here");
-        }
+        
     }
 
 }

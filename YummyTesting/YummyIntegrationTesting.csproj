@@ -31,7 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DbContextSharLab\DbContextSharLab.csproj" />
     <ProjectReference Include="..\YummyDrop_online_store\YummyDrop_online_store.csproj" />
+    <ProjectReference Include="..\YummyLibrary\YummySharedLibrary.csproj" />
   </ItemGroup>
 
 </Project>

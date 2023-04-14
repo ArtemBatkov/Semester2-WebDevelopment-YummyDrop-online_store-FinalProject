@@ -1,9 +1,11 @@
 ﻿@page "/find-your-loot"
+@using DbContextSharLab;
 @using Microsoft.EntityFrameworkCore;
-@using YummyDrop_online_store.Models;
+
 @using YummyDrop_online_store.Services.RandomizeService;
 @using YummyDrop_online_store.Services.GeneratorService;
 @using YummyDrop_online_store.Data;
+@using YummySharedLibrary;
 @inject IRandomizeService randomizer;
 @inject IGeneratorService generator;
 @inject ApplicationDbContext context;

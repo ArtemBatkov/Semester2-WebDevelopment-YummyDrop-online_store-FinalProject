@@ -1,4 +1,4 @@
-﻿namespace YummyDrop_online_store.Models
+﻿namespace YummySharedLibrary
 {
     public class FruitBox
     {

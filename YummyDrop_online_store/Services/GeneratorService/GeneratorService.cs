@@ -1,5 +1,6 @@
-﻿using YummyDrop_online_store.Models;
+﻿ 
 using MoreLinq.Extensions;
+using YummySharedLibrary;
 
 namespace YummyDrop_online_store.Services.GeneratorService
 {
@@ -8,6 +9,7 @@ namespace YummyDrop_online_store.Services.GeneratorService
 
         public List<int> GenerateMillionIds(List<YummyItem> yummys)
         {
+            if(yummys == null) throw(new ArgumentNullException(nameof(yummys)));
             int size = 1_000_000;
             List<int> Ids = new List<int>();
             //take the id with the biggest drop chance
@@ -38,6 +40,7 @@ namespace YummyDrop_online_store.Services.GeneratorService
 
         public int[] GenerateMillionIds(YummyItem [] yummys)
         {
+            if (yummys == null) throw (new ArgumentNullException(nameof(yummys)));
             int size = 1_000_000;
             int [] Ids = new int[size];
             

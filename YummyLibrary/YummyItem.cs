@@ -1,4 +1,4 @@
-﻿namespace YummyDrop_online_store.Models
+﻿namespace YummySharedLibrary
 {
     /// <summary>
     /// The class describes an object of a loot box

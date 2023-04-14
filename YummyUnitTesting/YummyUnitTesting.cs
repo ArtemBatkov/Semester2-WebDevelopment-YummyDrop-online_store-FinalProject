@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using YummyDrop_online_store.Controllers;
 using YummyDrop_online_store.Data;
-using YummyDrop_online_store.Models;
+
 using YummyDrop_online_store.Services.GeneratorService;
 using YummyDrop_online_store.Services.RandomizeService;
 
@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore.InMemory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoreLinq;
 using System.Diagnostics;
+
+using YummySharedLibrary;
+using DbContextSharLab;
 
 namespace YummyUnitTesting
 {

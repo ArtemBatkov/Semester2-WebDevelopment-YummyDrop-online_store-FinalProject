@@ -1,4 +1,4 @@
-﻿using YummyDrop_online_store.Models;
+﻿using YummySharedLibrary;
 
 namespace YummyDrop_online_store.Services.RandomizeService
 {
