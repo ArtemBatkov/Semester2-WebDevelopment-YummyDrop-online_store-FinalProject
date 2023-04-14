@@ -15,5 +15,7 @@ namespace YummyDrop_online_store.Services.RandomizeService
         /// <param name="IsPsevdo">Predicted value? False is default</param>
         /// <returns>A random id</returns>
         public int GetRandomId(List<int> ids, bool IsPsevdo = false);
+
+        public int GetRandomId(int[] ids, bool IsPsevdo = false);
     }
 }

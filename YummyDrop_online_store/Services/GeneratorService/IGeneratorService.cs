@@ -10,5 +10,8 @@ namespace YummyDrop_online_store.Services.GeneratorService
         /// <param name="yummys">List of YummyItem</param>
         /// <returns>Shuffled list with 1_000_000 elements of ids</returns>
         public List<int> GenerateMillionIds(List<YummyItem> yummys);
+
+
+        public int[] GenerateMillionIds(YummyItem[] yummys);
     }
 }
