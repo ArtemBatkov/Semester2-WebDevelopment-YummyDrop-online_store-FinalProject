@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YummySharedLibrary", "Yummy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YummyUnitTesting", "YummyUnitTesting\YummyUnitTesting.csproj", "{B35FE4FF-13CB-41E8-BCC2-816CF09AC1B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbContextSharLab", "DbContextSharLab\DbContextSharLab.csproj", "{36F79A58-9784-47A9-A7E3-18FB079BBC16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbContextSharLab", "DbContextSharLab\DbContextSharLab.csproj", "{36F79A58-9784-47A9-A7E3-18FB079BBC16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

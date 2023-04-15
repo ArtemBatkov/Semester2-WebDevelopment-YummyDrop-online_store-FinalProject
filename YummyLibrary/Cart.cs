@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YummySharedLibrary
 {
-    internal class a
+    internal class Cart
     {
     }
 }

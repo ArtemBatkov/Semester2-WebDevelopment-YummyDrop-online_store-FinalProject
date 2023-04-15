@@ -2,6 +2,11 @@
 @using DbContextSharLab;
 @using Microsoft.EntityFrameworkCore;
 
+@using Blazorise;
+@using Blazorise.Bootstrap;
+ 
+ 
+
 @using YummyDrop_online_store.Services.RandomizeService;
 @using YummyDrop_online_store.Services.GeneratorService;
 @using YummyDrop_online_store.Data;
@@ -10,89 +15,136 @@
 @inject IGeneratorService generator;
 @inject ApplicationDbContext context;
 
-<div>
-    <h1>Randomize an item from the loot box!</h1>
-    <button @onclick="onGetRandomYummyItem" style="border-radius: 10px;">Randomize YummyItem</button>
+ 
+
+<html>
+    <head>
+    <link rel="stylesheet" href="css/find_loot.css">
     
-    <button @onclick="onGetUntilLemonWillNotBeDropped" style="border-radius: 10px;">Randomize Until Get My Lemon!</button>
+    </head>
 
-    <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
+    <body>
+    <div>
+        <h1>Randomize an item from the loot box!</h1>
+        <button @onclick="onGetRandomYummyItem" style="border-radius: 10px;">Randomize YummyItem</button>
 
-    @if (yummyItem != null)
-    {
-        <div style="margin-bottom: 10px;">
-            <label>You tried: @tries time(s)</label>
-        </div>
+        <button @onclick="onGetUntilLemonWillNotBeDropped" style="border-radius: 10px;">Randomize Until Get My Lemon!</button>
 
-        <div>
-            <label>Id:</label>
-            <label>@yummyItem.Id</label>
-        </div>
-        <div>
-            <label>Name:</label>
-            <label>@yummyItem.Name</label>
-        </div>
-        <div>
-            <label>Cost:</label>
-            <label>$@yummyItem.Cost</label>
-        </div>
-        <div>
-            <label>DropChance:</label>
-            <label>@yummyItem.DropChance%</label>
-        </div>
+        <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
 
-        <div style="margin-top: 10px;">
-            <img src=@yummyItem.Image alt="Yummy Image" style="max-width: 150px; max-height: 150px;" />
-        </div>
+        @if (yummyItem != null)
+        {
+           
+            <Blazorise.Modal @bind-Visible="showModal" ModalSize="Blazorise.ModalSize.Small" OnClosing="HandleClosing" PreventClosing="true" @ref="modalRef">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <ModalHeader>
+                            <h3>Modal Title</h3>
+                        </ModalHeader>
+                        <ModalBody>
+                            <p>Modal Body Content</p>
+                        </ModalBody>
+                        <ModalFooter>
+                            <button class="btn btn-success" @onclick="onAcceptItem">Take</button>
+                            <button class="btn btn-danger" @onclick="onSellItem">Sell</button>
+                        </ModalFooter>
+                    </div>
+                </div>
+            </Blazorise.Modal>
+             
+
             
 
-        <div style="margin-top: 15px;">
-            <label>Your statistic is</label>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="padding: 0 75px;">Yummy Name</th>
-                        <th style="padding: 0 75px;">Drop Quantity</th>
-                        <th style="padding: 0 75px;">Theoretical Drop Chance</th>
-                        <th style="padding: 0 75px;">Actual Drop Chance</th>                        
-                    </tr>
-                </thead>
-                <tbody>                     
-                    @foreach (var item in statistics)
-                    {
+
+            <div style="margin-bottom: 10px;">
+                <label>You tried: @tries time(s)</label>
+            </div>
+
+            <div>
+                <label>Id:</label>
+                <label>@yummyItem.Id</label>
+            </div>
+            <div>
+                <label>Name:</label>
+                <label>@yummyItem.Name</label>
+            </div>
+            <div>
+                <label>Cost:</label>
+                <label>$@yummyItem.Cost</label>
+            </div>
+            <div>
+                <label>DropChance:</label>
+                <label>@yummyItem.DropChance%</label>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <img src=@yummyItem.Image alt="Yummy Image" style="max-width: 150px; max-height: 150px;" />
+            </div>
+
+
+            <div style="margin-top: 15px;">
+                <label>Your statistic is</label>
+                <table>
+                    <thead>
                         <tr>
-                            <td style="padding: 0 75px;">@item.Key</td>
-                            <td style="padding: 0 75px;">@item.Value</td>
-                            <td style="padding: 0 75px;">@(LootList.FirstOrDefault(x => x.Name == item.Key)?.DropChance.ToString("F2"))%</td>
-                            <td style="padding: 0 75px;">@(((double)item.Value / tries * 100).ToString("F2"))%</td>
+                            <th style="padding: 0 75px;">Yummy Name</th>
+                            <th style="padding: 0 75px;">Drop Quantity</th>
+                            <th style="padding: 0 75px;">Theoretical Drop Chance</th>
+                            <th style="padding: 0 75px;">Actual Drop Chance</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in statistics)
+                        {
+                            <tr>
+                                <td style="padding: 0 75px;">@item.Key</td>
+                                <td style="padding: 0 75px;">@item.Value</td>
+                                <td style="padding: 0 75px;">@(LootList.FirstOrDefault(x => x.Name == item.Key)?.DropChance.ToString("F2"))%</td>
+                                <td style="padding: 0 75px;">@(((double)item.Value / tries * 100).ToString("F2"))%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
 
-        </div>
+            </div>
 
-    }
-    else
-    {
-        <div>
-            <h3>Not randomized yet!</h3>
-        </div>
-    }
+        }
+        else
+        {
+            <div>
+                <h3>Not randomized yet!</h3>
+            </div>
+        }
 
 
-</div>
+    </div>
+
+    </body>
+</html>
+
 
 
 
 @code {
+
+
+    Blazorise.Modal modalRef;
+
+    private void HandleClosing(Blazorise.ModalClosingEventArgs e)
+    {
+        Console.WriteLine("HandleClosing method called");
+        e.Cancel = true;
+    }
+
+
+
+    public bool showModal = false;
     private int tries = 0;
     private YummyItem yummyItem;
     private List<YummyItem> LootList;
     private Dictionary<string, int> statistics = new Dictionary<string, int>();
 
-    //[Inject]
-    //private ApplicationDbContext context { get; set; }
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,20 +159,8 @@
         }
     }
 
-    //public FindYourLoot()
-    //{
-    //    //take box from DB
-    //    var boxes = context.FruitBoxTable.Include(box => box.BoxContent1).ToList();
-    //    var box1 = boxes[0];
-    //    //take yummy items from this box
-    //    var boxcont = box1.BoxContent1;
-    //    LootList = boxcont;
-
-    //    foreach (var item in LootList)
-    //    {
-    //        statistics[item.Name] = 0;
-    //    }
-    //}
+    private void ShowModal() => showModal = true;
+    private void HideModal() => showModal = false;
 
     private void onGetRandomYummyItem()
     {
@@ -129,6 +169,7 @@
         yummyItem = LootList.Find(x => x.Id == randId);
         tries++;
         statistics[yummyItem.Name]++;
+        ShowModal();
     }
 
     private async Task onGetUntilLemonWillNotBeDropped()
@@ -144,7 +185,7 @@
             tries++;
             statistics[yummyItem.Name]++;
 
-            
+
             await Task.Delay(100);
             StateHasChanged();
         }
@@ -162,7 +203,7 @@
             tries++;
             statistics[yummyItem.Name]++;
 
-           
+
             await Task.Delay(100);
             StateHasChanged();
         }
@@ -177,4 +218,13 @@
     }
 
 
+    private void onAcceptItem()
+    {
+        HideModal();
+    }
+
+    private void onSellItem()
+    {
+        HideModal();
+    }
 }

@@ -10,6 +10,8 @@ using Moq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using DbContextSharLab;
+using Blazorise;
+using Blazorise.Bootstrap;
 
 internal class Program
 {
@@ -43,6 +45,11 @@ internal class Program
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
+
+        builder.Services.AddBlazorise()
+          .AddBootstrapProviders();
+          
+
 
 
         var app = builder.Build();

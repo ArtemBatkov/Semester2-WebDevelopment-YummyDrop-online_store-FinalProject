@@ -1,3 +1,5 @@
+using DbContextSharLab;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -5,6 +7,7 @@ using YummyDrop_online_store.Controllers;
 using YummyDrop_online_store.Services.ClientService;
 using YummyDrop_online_store.Services.GeneratorService;
 using YummyDrop_online_store.Services.RandomizeService;
+using YummySharedLibrary;
 
 namespace YummyTesting
 {
@@ -12,13 +15,10 @@ namespace YummyTesting
     public class TestServices
     {
 
-
-
-
-
-        //private ServiceProvider _serviceProvider;
-        //private YummyAPIController? _contr;
-
+        private ServiceProvider _serviceProvider;
+        private YummyAPIController? _contr;
+        
+        private Random random = new Random();
 
         //[TestInitialize]
         //public void TestInitialize()
@@ -30,128 +30,84 @@ namespace YummyTesting
 
         //    _serviceProvider = services.BuildServiceProvider();
         //    _contr = _serviceProvider.GetService<YummyAPIController>();
-
+        //    _generatorService = _serviceProvider.GetService<GeneratorService>();
         //}
+       
+        private static List<YummyItem> LootList;
 
-        //[TestCleanup]
-        //public void TestCleanup()
-        //{
-        //    _serviceProvider.Dispose();
-        //}
+        private static IGeneratorService _generatorService;
+        private static IRandomizeService _randomizeSerivce;
 
+        private static IServiceProvider ServiceProvider { get; set; }
+        [AssemblyInitialize]
+        public static void AssemblyInitialize(TestContext context)
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IRandomizeService, RandomizeSerivce>();
+            services.AddSingleton<IGeneratorService, GeneratorService>();
+            services.AddSingleton<YummyAPIController>();
 
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=FruitBoxTable;Trusted_Connection=True;")
+                .Options;
 
-        ////[TestMethod]
-        ////public async Task TestAPIGetRandromYummyItemStatusCode()
-        ////{
-        ////    var service = new GeneratorService();
-        ////    var random = new Random();
-        ////    var items = service.GenerateYummyItemsList();
-        ////    var url = "http://localhost:5179/api/yummy";
-        ////    ClientService client = new ClientService();
-        ////    HttpResponseMessage response = await client.FetchDataFromAPI(url);
-        ////    Assert.IsTrue(response.IsSuccessStatusCode);
-        ////}
-
-
-        //[TestMethod]
-        //public async Task TestAPIReturnsYummyItem()
-        //{
-        //    var port = 5179;
-        //    var url = $"http://localhost:{port}/api/yummy";
-        //    var client = new ClientService();
-        //    var response = await client.FetchDataFromAPI(url);
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var json = await response.Content.ReadAsStringAsync();
-        //        var expected = JsonConvert.DeserializeObject<YummyItem>(json);
-        //        Assert.IsNotNull(expected);
-        //    }
-        //    else
-        //    {
-        //        Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
-        //    }
-        //}
+            var dbContext = new ApplicationDbContext(options);
+            dbContext.Database.EnsureCreated();
 
 
+            ServiceProvider = services.BuildServiceProvider();
 
-        //[TestMethod]
-        //public async Task TestAPIReturnsEveryTimeNewYummyItem()
-        //{
-        //    ClientService client = new ClientService();
-        //    var port = 5179;
-        //    var url = $"http://localhost:{port}/api/yummy";
-        //    var response = await client.FetchDataFromAPI(url);
-
-        //    YummyItem? object1;
-        //    if (!response.IsSuccessStatusCode)
-        //        Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
-        //    var json = await response.Content.ReadAsStringAsync();
-        //    object1 = JsonConvert.DeserializeObject<YummyItem>(json);
-        //    Assert.IsNotNull(object1);
+            var boxes = dbContext.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync().GetAwaiter().GetResult();
+            var box1 = boxes[0];
+            var boxcont = box1.BoxContent1;
+            LootList = boxcont;
+            _generatorService = ServiceProvider.GetService<IGeneratorService>() as GeneratorService;
+            _randomizeSerivce = ServiceProvider.GetService<IRandomizeService>() as RandomizeSerivce;
+        }
 
 
-        //    response = await client.FetchDataFromAPI(url);
-        //    if (!response.IsSuccessStatusCode)
-        //        Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
-        //    YummyItem? object2;
-        //    json = await response.Content.ReadAsStringAsync();
-        //    object2 = JsonConvert.DeserializeObject<YummyItem>(json);
-        //    Assert.IsNotNull(object2);
-
-        //    //checking
-        //    int attempts = 5;
-        //    int attempt = 0;
-        //    while (attempt < attempts)
-        //    {
-        //        if (IsEqualYummys(object1, object2))
-        //        {
-        //            response = await client.FetchDataFromAPI(url);
-        //            if (!response.IsSuccessStatusCode)
-        //                Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
-        //            json = await response.Content.ReadAsStringAsync();
-        //            object1 = JsonConvert.DeserializeObject<YummyItem>(json);
-        //            Assert.IsNotNull(object1);
-
-        //            response = await client.FetchDataFromAPI(url);
-        //            if (!response.IsSuccessStatusCode)
-        //                Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
-        //            json = await response.Content.ReadAsStringAsync();
-        //            object2 = JsonConvert.DeserializeObject<YummyItem>(json);
-        //            Assert.IsNotNull(object2);
-
-        //            attempt++;
-
-        //            if (attempt == attempts)
-        //            {
-        //                Debug.WriteLine($"\nid: {object1.Id}\t\t\tid: {object2.Id}" +
-        //                $"\n{object1.Name}\t\t{object2.Name}" +
-        //                $"\n{object1.Cost}\t\t{object2.Cost}" +
-        //                $"\n{object1.DropChance}\t\t{object2.DropChance}");
-        //                Assert.Fail($"Objects where the same;\nmax attempts = {attempts}\ndone = {attempt}");
-        //            }
-        //        }
-        //        else { break; }
-        //    }
-        //    Debug.WriteLine($"\nid: {object1.Id}\t\t\tid: {object2.Id}" +
-        //        $"\n{object1.Name}\t\t{object2.Name}" +
-        //        $"\n{object1.Cost}\t\t{object2.Cost}" +
-        //        $"\n{object1.DropChance}\t\t{object2.DropChance}");
-        //}
-
-        //private bool IsEqualYummys(YummyItem object1, YummyItem object2)
-        //{
-        //    return String.Equals(object1.Id, object2.Id)
-        //            &&
-        //            String.Equals(object1.Name, object2.Name)
-        //            &&
-        //            String.Equals(object1.Cost, object2.Cost)
-        //            &&
-        //            String.Equals(object1.DropChance, object2.DropChance);
-        //}
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            ServiceProvider = null;
+        }
 
 
 
+        [TestMethod]
+        public async Task TestAPIGetRandromYummyItemStatusCode()
+        {
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            var url = "http://localhost:5179/api/yummy";
+            ClientService client = new ClientService();
+            HttpResponseMessage response = await client.FetchDataFromAPI(url);
+            Assert.IsTrue(response.IsSuccessStatusCode);
+        }
+
+
+
+
+        [TestMethod]
+        public async Task APIReturnsYummyItemTest()
+        {
+            var url = "http://localhost:5179/api/yummy";
+            var client = new ClientService();
+            var response = await client.FetchDataFromAPI(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var expected = JsonConvert.DeserializeObject<YummyItem>(json);
+                Assert.IsNotNull(expected);
+            }
+            else
+            {
+                Assert.Fail($"NOT SUCCESSFULL STATUS CODE! \n code: {response.StatusCode}");
+            }
+        }
+
+
+
+        
 
 
 

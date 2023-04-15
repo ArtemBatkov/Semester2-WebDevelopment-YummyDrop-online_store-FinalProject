@@ -1,21 +1,48 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
 
 <PageTitle>YummyDrop_online_store</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-        
-    </div>
-    
-    
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+<html>
+    <head>
+    <link rel="stylesheet" href="css/cart.css">
+    </head>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <body>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+                <NavMenu />
+        
+            </div>
+    
+    
+            <main>
+                <div class="top-row px-4 d-flex">
+                    <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            
+                    <div class="cart">
+                    <a href="/cart" style="text-decoration: none;">
+                            <img src="/cart.png" alt="Cart">
+                            <span class="cart-count">@cartItemCount</span>
+                        </a>
+                    </div>
+
+                </div>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </div>
+</body>
+</html>
+
+@code {
+    int cartItemCount = 0;  
+
+    private void OnCartClick()
+    {
+        NavigationManager.NavigateTo("/cart");
+    }
+}
