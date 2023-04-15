@@ -21,5 +21,10 @@ namespace YummyDrop_online_store.Services.CartService
             Cart.addToCart(yummyItem);
             UpdateCartItemCount(Cart.getLengthCart());
         }
+
+        public List<YummyItem> GetAllCartObjects()
+        {
+            return Cart.GetAllCartObjects();
+        }
     }
 }

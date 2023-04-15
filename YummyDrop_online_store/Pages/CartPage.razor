@@ -1,8 +1,35 @@
 ﻿@page "/cart"
+@using YummySharedLibrary
+@using YummyDrop_online_store.Services.CartService;
+@inject ICartService _cart;
 
 
-<h3>CartPage</h3>
+<html>
+    <head>
+    <link rel="stylesheet" href="css/cart_list.css">
+    </head>
+</html>
+
+@foreach (var item in Cart)
+{
+    <div class="cart-item">
+        <img src="@item.Image" alt="@item.Name" class="cart-item-image" />
+
+        <div class="cart-item-details">
+            <h3 class="cart-item-title">@item.Name</h3>
+            <div class="cart-item-price">$@item.Cost</div>
+        </div>
+    </div>
+}
+
 
 @code {
+    private List<YummyItem> Cart;
+
+    protected override void OnInitialized()
+    {
+        Cart = _cart.GetAllCartObjects();
+    }
+
 
 }

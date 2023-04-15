@@ -21,6 +21,9 @@ namespace YummySharedLibrary
         }
 
 
-         
+         public static List<YummyItem> GetAllCartObjects()
+        {
+            return CartItems; 
+        }
     }
 }
