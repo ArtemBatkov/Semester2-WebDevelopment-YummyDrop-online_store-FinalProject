@@ -4,6 +4,8 @@ namespace YummyDrop_online_store.Services.CartService
 {
     public class CartService : ICartService
     {
+        private Cart _cart = new Cart();
+
         private int _cartItemCount = 0;
         public int CartItemCount => _cartItemCount;
 
@@ -18,13 +20,13 @@ namespace YummyDrop_online_store.Services.CartService
         public void addToCart(YummyItem yummyItem)
         {
             if(yummyItem == null) { return; }
-            Cart.addToCart(yummyItem);
-            UpdateCartItemCount(Cart.getLengthCart());
+            _cart.addToCart(yummyItem);
+            UpdateCartItemCount(_cart.getLengthCart());
         }
 
         public List<YummyItem> GetAllCartObjects()
         {
-            return Cart.GetAllCartObjects();
+            return _cart.GetAllCartObjects();
         }
     }
 }

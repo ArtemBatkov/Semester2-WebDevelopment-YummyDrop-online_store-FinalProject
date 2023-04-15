@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using YummyDrop_online_store.Controllers;
 using System;
 using Moq;
-using Microsoft.AspNetCore.Components;
+
 using Microsoft.EntityFrameworkCore;
 using DbContextSharLab;
 using Blazorise;
@@ -31,7 +31,7 @@ internal class Program
 
         builder.Services.AddSingleton<IGeneratorService, GeneratorService>();
 
-
+         
 
         //add controllers
         builder.Services.AddControllers().AddJsonOptions(options =>
@@ -45,7 +45,11 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+            //options.UseInMemoryDatabase("FruitBoxTable");
         });
+
+
 
         builder.Services.AddBlazorise()
           .AddBootstrapProviders();

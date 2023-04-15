@@ -6,22 +6,24 @@ using System.Threading.Tasks;
 
 namespace YummySharedLibrary
 {
-    public static class Cart
+    public  class Cart
     {
-        private static List<YummyItem> CartItems = new List<YummyItem>();
-        public static void addToCart(YummyItem item)
+        public int Id { get; set; }
+
+        private  List<YummyItem> CartItems = new List<YummyItem>();
+        public  void addToCart(YummyItem item)
         {
             CartItems.Insert(0,item);
            
         }
 
-        public static int getLengthCart()
+        public  int getLengthCart()
         {
             return CartItems.Count;
         }
 
 
-         public static List<YummyItem> GetAllCartObjects()
+         public  List<YummyItem> GetAllCartObjects()
         {
             return CartItems; 
         }
