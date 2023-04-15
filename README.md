@@ -48,7 +48,11 @@ Here is a new navigation cell.
 
 <br>
 Here is the page looks like
-![image](https://user-images.githubusercontent.com/110242091/232183393-033dd0b4-9776-4ddb-9c2e-d8a7d7016498.png)
+  
+<br>
+
+![image](https://user-images.githubusercontent.com/110242091/232184152-69345365-2c5c-44c1-b6ac-f6120337ac6a.png)
+
 
 <br>
 There are three buttons. First is production, two others are more for testing in real time.
