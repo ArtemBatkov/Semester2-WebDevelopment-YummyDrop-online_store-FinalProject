@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using DbContextSharLab;
 using Blazorise;
 using Blazorise.Bootstrap;
+using YummyDrop_online_store.Services.CartService;
 
 internal class Program
 {
@@ -48,8 +49,9 @@ internal class Program
 
         builder.Services.AddBlazorise()
           .AddBootstrapProviders();
-          
 
+
+        builder.Services.AddSingleton<ICartService, CartService>();
 
 
         var app = builder.Build();

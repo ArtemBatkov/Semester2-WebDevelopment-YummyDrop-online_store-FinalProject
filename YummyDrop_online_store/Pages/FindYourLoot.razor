@@ -6,7 +6,7 @@
 @using Blazorise.Bootstrap;
  
  
-
+@using YummyDrop_online_store.Services.CartService;
 @using YummyDrop_online_store.Services.RandomizeService;
 @using YummyDrop_online_store.Services.GeneratorService;
 @using YummyDrop_online_store.Data;
@@ -14,7 +14,7 @@
 @inject IRandomizeService randomizer;
 @inject IGeneratorService generator;
 @inject ApplicationDbContext context;
-
+@inject ICartService _cart;
  
 
 <html>
@@ -144,7 +144,8 @@
     private List<YummyItem> LootList;
     private Dictionary<string, int> statistics = new Dictionary<string, int>();
 
-    
+    private static YummyItem _currentYummyItem;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -167,6 +168,7 @@
         var Ids = generator.GenerateMillionIds(LootList);
         int randId = randomizer.GetRandomId(Ids);
         yummyItem = LootList.Find(x => x.Id == randId);
+        _currentYummyItem = yummyItem;
         tries++;
         statistics[yummyItem.Name]++;
         ShowModal();
@@ -184,7 +186,6 @@
             yummyItem = LootList.Find(x => x.Id == randId);
             tries++;
             statistics[yummyItem.Name]++;
-
 
             await Task.Delay(100);
             StateHasChanged();
@@ -221,6 +222,13 @@
     private void onAcceptItem()
     {
         HideModal();
+        if (_currentYummyItem != null){
+            _cart.addToCart(_currentYummyItem);
+            //int cartItemCount = _cart.CartItemCount;
+            //_cart.UpdateCartItemCount(cartItemCount);
+        }
+
+        var len = Cart.getLengthCart();
     }
 
     private void onSellItem()

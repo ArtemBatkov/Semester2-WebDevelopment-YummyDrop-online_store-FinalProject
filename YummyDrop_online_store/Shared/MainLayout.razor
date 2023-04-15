@@ -1,19 +1,22 @@
-﻿@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
+﻿@using YummyDrop_online_store.Services.CartService;
+@using YummySharedLibrary;
 
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject ICartService CartService
 
 <PageTitle>YummyDrop_online_store</PageTitle>
 
-<html>
+ 
     <head>
     <link rel="stylesheet" href="css/cart.css">
     </head>
 
-    <body>
+    
         <div class="page">
             <div class="sidebar">
                 <NavMenu />
-                <NavMenu />
+                
         
             </div>
     
@@ -21,11 +24,12 @@
             <main>
                 <div class="top-row px-4 d-flex">
                     <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-            
+                    
+                    
                     <div class="cart">
                     <a href="/cart" style="text-decoration: none;">
                             <img src="/cart.png" alt="Cart">
-                            <span class="cart-count">@cartItemCount</span>
+                    <span class="cart-count">@CartService.CartItemCount</span>
                         </a>
                     </div>
 
@@ -35,14 +39,24 @@
                 </article>
             </main>
         </div>
-</body>
-</html>
+ 
 
 @code {
-    int cartItemCount = 0;  
+
 
     private void OnCartClick()
     {
         NavigationManager.NavigateTo("/cart");
+    }
+
+    protected override void OnInitialized()
+    {
+        CartService.CartUpdated += OnCartUpdated;
+        //var len = Cart.getLengthCart();
+        //CartService.UpdateCartItemCount(len);
+    }
+    private void OnCartUpdated(object sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
     }
 }
