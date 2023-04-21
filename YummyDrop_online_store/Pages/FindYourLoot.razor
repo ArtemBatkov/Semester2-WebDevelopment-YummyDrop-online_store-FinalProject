@@ -20,7 +20,7 @@
 <html>
     <head>
     <link rel="stylesheet" href="css/find_loot.css">
-    
+    <link rel="stylesheet" href="css/yummy_item_container.css" />
     </head>
 
     <body>
@@ -32,9 +32,14 @@
 
         <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
 
-        @if (yummyItem != null)
+        @if (yummyItem != null || randIds.Count != 0)
         {
-           
+            <div style="margin-bottom: 10px;">
+                <label>You tried: @tries time(s)</label>
+            </div>
+
+           <!--WHILE DEBUGING-->
+           <!--
             <Blazorise.Modal @bind-Visible="showModal" ModalSize="Blazorise.ModalSize.Small" OnClosing="HandleClosing" PreventClosing="true" @ref="modalRef">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -51,36 +56,30 @@
                     </div>
                 </div>
             </Blazorise.Modal>
-             
+                  -->
+           
+            @if(@multiCast < 2)
+            {                
+                <_FindYourLoot yummyItem="@yummyItem" />
+               
+            }
+            else
+            {
+                @foreach(var item in randIds)
+                {
+                    <_FindYourLoot yummyItem="@item"  />
+                    <!-- style="display: inline-block; margin-right: 10px;" -->
+                }
+            }
+
 
             
+       
 
 
-            <div style="margin-bottom: 10px;">
-                <label>You tried: @tries time(s)</label>
-            </div>
+           
 
-            <div>
-                <label>Id:</label>
-                <label>@yummyItem.Id</label>
-            </div>
-            <div>
-                <label>Name:</label>
-                <label>@yummyItem.Name</label>
-            </div>
-            <div>
-                <label>Cost:</label>
-                <label>$@yummyItem.Cost</label>
-            </div>
-            <div>
-                <label>DropChance:</label>
-                <label>@yummyItem.DropChance%</label>
-            </div>
-
-            <div style="margin-top: 10px;">
-                <img src=@yummyItem.Image alt="Yummy Image" style="max-width: 150px; max-height: 150px;" />
-            </div>
-
+          
 
             <div style="margin-top: 15px;">
                 <label>Your statistic is</label>
@@ -147,6 +146,8 @@
     private static YummyItem _currentYummyItem;
 
 
+    private Dictionary<int, double> MultiChance = new Dictionary<int, double>();
+
     protected override async Task OnInitializedAsync()
     {
         var boxes = await context.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
@@ -158,21 +159,76 @@
         {
             statistics[item.Name] = 0;
         }
+
+        //percentage
+        MultiChance[1] = 85.37;
+        MultiChance[2] = 11.59;
+        MultiChance[3] = 2.04;
+        MultiChance[4] = 1;
     }
 
     private void ShowModal() => showModal = true;
     private void HideModal() => showModal = false;
 
-    private void onGetRandomYummyItem()
+    private int multiCast = 0;
+    /// <summary>
+    /// Generates a random index from the LootList
+    /// </summary>
+    /// <returns>Random index</returns>
+    /// <exception cref="Can throw an exception if LootList is null or empty"></exception>
+    private int generateRandomIdByLootList()
     {
+        if (LootList == null) throw new Exception("LootList is null");
+        if (LootList.Count == 0) throw new Exception("LootList is empty");
         var Ids = generator.GenerateMillionIds(LootList);
         int randId = randomizer.GetRandomId(Ids);
-        yummyItem = LootList.Find(x => x.Id == randId);
-        _currentYummyItem = yummyItem;
-        tries++;
-        statistics[yummyItem.Name]++;
+        return randId;
+    }
+
+
+
+    private async Task onGetRandomYummyItem()
+    {
+        var multis = generator.GenerateMillionMulticast(MultiChance);
+        multiCast = randomizer.GetRandomId(multis);         
+        if (multiCast > 1)
+        {
+            //if multicasting happend
+            await onMuticastingHappend();
+            return;
+        }
+        else
+        {
+            int randId = generateRandomIdByLootList();
+            yummyItem = LootList.Find(x => x.Id == randId);
+            _currentYummyItem = yummyItem;
+            tries++;
+            statistics[yummyItem.Name]++;
+            ShowModal();
+        }
+    }
+
+    private List<YummyItem> randIds = new List<YummyItem>();
+
+    private async Task onMuticastingHappend()
+    {
+        randIds.Clear();
+        for(int m = 0; m < multiCast; m++)
+        {
+            int randId = generateRandomIdByLootList();
+            var yummyItem = LootList.Find(x => x.Id == randId);
+            randIds.Add(yummyItem);
+            tries++;
+            statistics[yummyItem.Name]++;
+        }
+        randIds = randIds.OrderByDescending(c => c.Cost).ToList();
+        //Array.Sort(randIds.ToArray(), (x, y) => y.Cost.CompareTo(x.Cost));
         ShowModal();
     }
+
+
+
+
 
     private async Task onGetUntilLemonWillNotBeDropped()
     {

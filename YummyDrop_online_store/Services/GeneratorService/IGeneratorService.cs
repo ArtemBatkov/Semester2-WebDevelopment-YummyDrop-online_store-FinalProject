@@ -14,5 +14,7 @@ namespace YummyDrop_online_store.Services.GeneratorService
 
 
         public int[] GenerateMillionIds(YummyItem[] yummys);
+
+        public int[] GenerateMillionMulticast(Dictionary<int, double> multiDic);
     }
 }

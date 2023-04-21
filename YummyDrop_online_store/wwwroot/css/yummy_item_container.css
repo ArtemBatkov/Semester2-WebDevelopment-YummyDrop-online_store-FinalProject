@@ -1,0 +1,19 @@
+﻿body {
+}
+.yummy-item-container {
+    position: relative;
+    margin-top: 10px;
+}
+
+.yummy-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.5;
+}
+
+.yummy-item-image {
+    max-width: 150px;
+    max-height: 150px;
+}

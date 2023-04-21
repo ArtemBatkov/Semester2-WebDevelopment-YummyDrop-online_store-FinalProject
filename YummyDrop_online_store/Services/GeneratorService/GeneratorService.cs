@@ -71,5 +71,30 @@ namespace YummyDrop_online_store.Services.GeneratorService
         }
 
 
+         public int[] GenerateMillionMulticast(Dictionary<int, double> multiDic)
+        {
+            if (multiDic == null) throw (new ArgumentNullException(nameof(multiDic)));
+            int size = 1_000_000;
+            int[] multis = new int[size];
+
+            int IdWithMaxDropChance = multiDic.OrderByDescending(kv => kv.Value).First().Key;
+            double totalChance = multiDic.Sum(x => x.Value);
+
+            int startIndex = 0;
+            foreach (var obj in multiDic)
+            {
+                var count = (int)(obj.Value/totalChance * size);
+                Array.Fill(multis, obj.Key, startIndex, count);
+                startIndex += count - 1;
+            }
+            if (multis.Contains(0))
+            {
+                multis = multis.Select(x => x == 0 ? IdWithMaxDropChance : x).ToArray();
+            }
+            multis = multis.Shuffle().ToArray();
+            return multis;
+        }
+
+
     }
 }

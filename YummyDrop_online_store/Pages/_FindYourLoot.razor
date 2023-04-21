@@ -1,0 +1,28 @@
+﻿ @using YummySharedLibrary;
+@using DbContextSharLab;
+
+
+<div class="yummy-item-container">
+    <div>
+        <label>Id:</label>
+        <label>@yummyItem.Id</label>
+    </div>
+    <div>
+        <label>Name:</label>
+        <label>@yummyItem.Name</label>
+    </div>
+    <div>
+        <label>Cost:</label>
+        <label>$@yummyItem.Cost</label>
+    </div>
+    <div>
+        <label>DropChance:</label>
+        <label>@yummyItem.DropChance%</label>
+    </div>
+    <img src=@yummyItem.Image alt="Yummy Image" style="max-width: 150px; max-height: 150px;" />
+</div>
+
+
+@code {
+    [Parameter] public YummyItem yummyItem { get; set; }
+}
