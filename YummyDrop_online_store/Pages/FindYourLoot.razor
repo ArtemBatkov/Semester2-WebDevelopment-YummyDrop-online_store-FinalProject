@@ -2,10 +2,12 @@
 @using DbContextSharLab;
 @using Microsoft.EntityFrameworkCore;
 
+@using Microsoft.JSInterop;
+
 @using Blazorise;
 @using Blazorise.Bootstrap;
- 
- 
+@using Microsoft.AspNetCore.Components.Web;
+@using Microsoft.AspNetCore.Components;
 @using YummyDrop_online_store.Services.CartService;
 @using YummyDrop_online_store.Services.RandomizeService;
 @using YummyDrop_online_store.Services.GeneratorService;
@@ -21,6 +23,7 @@
     <head>
     <link rel="stylesheet" href="css/find_loot.css">
     <link rel="stylesheet" href="css/yummy_item_container.css" />
+     
     </head>
 
     <body>
@@ -31,6 +34,8 @@
         <button @onclick="onGetUntilLemonWillNotBeDropped" style="border-radius: 10px;">Randomize Until Get My Lemon!</button>
 
         <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
+
+
 
         @if (yummyItem != null || randIds.Count != 0)
         {
@@ -60,26 +65,21 @@
            
             @if(@multiCast < 2)
             {                
-                <_FindYourLoot yummyItem="@yummyItem" />
-               
+                <_FindYourLoot yummyItem="@yummyItem" />               
             }
             else
             {
+                <label style="font-size: 18px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;"></label>
+                
                 @foreach(var item in randIds)
                 {
-                    <_FindYourLoot yummyItem="@item"  />
+                    <div style ="display: inline-block; margin-right: 10px;">
+                        <_FindYourLoot yummyItem="@item" />
+                    </div>
                     <!-- style="display: inline-block; margin-right: 10px;" -->
                 }
             }
 
-
-            
-       
-
-
-           
-
-          
 
             <div style="margin-top: 15px;">
                 <label>Your statistic is</label>
@@ -104,7 +104,43 @@
                         }
                     </tbody>
                 </table>
+            </div>
 
+            <div style="margin-top: 15px;">
+                <label>Multicatsting statistic:</label>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding: 0 75px;"></th>
+                            @foreach (var ch in MultiChance)
+                            {
+                                <th style="padding: 0 75px;">Multicast @ch.Key</th>
+                            }                         
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0 75px;">Quantity</td>
+                            @foreach(var q in MultiStatistics)
+                            {
+                                <th style="padding: 0 75px;">@q.Value</th>
+                            }
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 75px;">Theor chance</td>
+                            @foreach(var ch in MultiChance){
+                                 <td style="padding: 0 75px;">@ch.Value%</td>
+                            }                           
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 75px;">Fact chance</td>
+                            @foreach (var q in MultiStatistics)
+                            {
+                                <th style="padding: 0 75px;">@(((double)q.Value / MultiStatistics.Sum(x => x.Value)*100).ToString("F2"))%</th>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
         }
@@ -137,6 +173,7 @@
 
 
 
+
     public bool showModal = false;
     private int tries = 0;
     private YummyItem yummyItem;
@@ -147,6 +184,8 @@
 
 
     private Dictionary<int, double> MultiChance = new Dictionary<int, double>();
+
+    private Dictionary<int, int> MultiStatistics = new Dictionary<int, int>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -165,6 +204,12 @@
         MultiChance[2] = 11.59;
         MultiChance[3] = 2.04;
         MultiChance[4] = 1;
+
+        foreach(var m in MultiChance)
+        {
+            MultiStatistics[m.Key] = 0;
+        }
+
     }
 
     private void ShowModal() => showModal = true;
@@ -190,29 +235,33 @@
     private async Task onGetRandomYummyItem()
     {
         var multis = generator.GenerateMillionMulticast(MultiChance);
-        multiCast = randomizer.GetRandomId(multis);         
+        multiCast = randomizer.GetRandomId(multis); 
+        MultiStatistics[multiCast]++;
         if (multiCast > 1)
         {
-            //if multicasting happend
-            await onMuticastingHappend();
+            //if multicasting happend  
+            await onMuticastingHappend();            
             return;
         }
         else
-        {
+        {            
             int randId = generateRandomIdByLootList();
             yummyItem = LootList.Find(x => x.Id == randId);
             _currentYummyItem = yummyItem;
             tries++;
             statistics[yummyItem.Name]++;
-            ShowModal();
+            ShowModal();            
         }
     }
 
     private List<YummyItem> randIds = new List<YummyItem>();
 
+
+
     private async Task onMuticastingHappend()
     {
         randIds.Clear();
+
         for(int m = 0; m < multiCast; m++)
         {
             int randId = generateRandomIdByLootList();
@@ -222,6 +271,7 @@
             statistics[yummyItem.Name]++;
         }
         randIds = randIds.OrderByDescending(c => c.Cost).ToList();
+        await PlaySound();
         //Array.Sort(randIds.ToArray(), (x, y) => y.Cost.CompareTo(x.Cost));
         ShowModal();
     }
@@ -254,11 +304,12 @@
         ResetDictionary();
         for (int i = 0; i < 1000; i++)
         {
-            var Ids = generator.GenerateMillionIds(LootList);
-            int randId = randomizer.GetRandomId(Ids);
-            yummyItem = LootList.Find(x => x.Id == randId);
-            tries++;
-            statistics[yummyItem.Name]++;
+            await onGetRandomYummyItem();
+            //var Ids = generator.GenerateMillionIds(LootList);
+            //int randId = randomizer.GetRandomId(Ids);
+            //yummyItem = LootList.Find(x => x.Id == randId);
+            //tries++;
+            //statistics[yummyItem.Name]++;
 
 
             await Task.Delay(100);
@@ -271,6 +322,11 @@
         foreach (var item in LootList)
         {
             statistics[item.Name] = 0;
+        }
+
+        foreach (var m in MultiChance)
+        {
+            MultiStatistics[m.Key] = 0;
         }
     }
 
@@ -290,5 +346,13 @@
     private void onSellItem()
     {
         HideModal();
+    }
+
+
+    [Inject] IJSRuntime JSRuntime { get; set; }
+
+    private async Task PlaySound()
+    {
+        await JSRuntime.InvokeVoidAsync("playSound");
     }
 }
