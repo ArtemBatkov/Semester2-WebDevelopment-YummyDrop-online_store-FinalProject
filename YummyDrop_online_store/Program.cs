@@ -14,6 +14,7 @@ using Blazorise;
 using Blazorise.Bootstrap;
 using YummyDrop_online_store.Services.CartService;
 using YummyDrop_online_store.Services.BalanceService;
+using YummyDrop_online_store.Services.BonusService;
 
 internal class Program
 {
@@ -59,7 +60,7 @@ internal class Program
         builder.Services.AddSingleton<ICartService, CartService>();
 
         builder.Services.AddSingleton<IBalanceService, BalanceService>();
-
+        builder.Services.AddSingleton<IBonusService, BonusService>();
 
 
         var app = builder.Build();

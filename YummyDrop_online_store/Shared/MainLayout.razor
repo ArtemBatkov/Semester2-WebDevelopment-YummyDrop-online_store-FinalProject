@@ -1,52 +1,53 @@
 ﻿@using YummyDrop_online_store.Services.CartService;
 @using YummySharedLibrary;
 @using YummyDrop_online_store.Services.BalanceService;
+@using YummyDrop_online_store.Services.BonusService;
 
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ICartService CartService
 @inject IBalanceService BalanceService;
-
+@inject IBonusService BonusService;
 
 <PageTitle>YummyDrop_online_store</PageTitle>
 
- 
-    <head>
+
+<head>
     <link rel="stylesheet" href="css/cart.css">
-    </head>
+</head>
 
-    
-        <div class="page">
-            <div class="sidebar">
-                <NavMenu />
-                
-        
-            </div>
-    
-    
-            <main>
-                <div class="top-row px-4 d-flex">
-                    <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
 
-                    <div class="cart">
-                    <a href="/cart" style="text-decoration: none;">
-                            <img src="/cart.png" alt="Cart">
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+
+
+    </div>
+
+
+    <main>
+        <div class="top-row px-4 d-flex">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+
+            <div class="cart">
+                <a href="/cart" style="text-decoration: none;">
+                    <img src="/cart.png" alt="Cart">
                     <span class="cart-count">@CartService.CartItemCount</span>
-                        </a>
-                    </div>
+                </a>
+            </div>
 
-                    <div >
-                        <a>Balance $@BalanceService.Balance</a>
-                        <a>Bonuses 0</a>
-                    </div>
+            <div>
+                <a>Balance $@BalanceService.Balance</a>
+                <a>Bonuses @BonusService.Bonus</a>
+            </div>
 
-                </div>
-                <article class="content px-4">
-                    @Body
-                </article>
-            </main>
         </div>
- 
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
 
 @code {
 
@@ -60,6 +61,7 @@
     {
         CartService.CartUpdated += OnCartUpdated;
         BalanceService.BalanceUpdated += OnBalanceUpdated;
+        BonusService.BonusUpdated += OnBonusUpdated;
 
         //var len = Cart.getLengthCart();
         //CartService.UpdateCartItemCount(len);
@@ -73,4 +75,11 @@
     {
         InvokeAsync(StateHasChanged);
     }
+
+
+    private void OnBonusUpdated(object sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+    
 }

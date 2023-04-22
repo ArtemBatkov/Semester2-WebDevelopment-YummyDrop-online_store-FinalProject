@@ -14,29 +14,50 @@
 @using YummyDrop_online_store.Data;
 @using YummySharedLibrary;
 @using YummyDrop_online_store.Services.BalanceService;
+@using YummyDrop_online_store.Services.BonusService;
 
 @inject IRandomizeService randomizer;
 @inject IGeneratorService generator;
 @inject ApplicationDbContext context;
 @inject ICartService _cart;
 @inject IBalanceService _balance;
+@inject IBonusService _bonus;
 
 <html>
 <head>
     <link rel="stylesheet" href="css/find_loot.css">
     <link rel="stylesheet" href="css/yummy_item_container.css" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.1/css/bootstrap.min.css" integrity="sha512-MJ8iW6Uplv5a5UpwlUyE/C8ZZlWck9v6yaMC2omlZ/W6zg2CxrOv90q3qMx68xLP8f0rXpABOQuEjgLZshF+2w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-/XnAy+1mQKmZM+mzgHlLypvHbOi2fJhHXVgqcAEuHT3+m3W7VzfuFNc9XnVcRklRlnMIM8FpQiJiGx7fI3aWzw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 </head>
 
 <body>
     <div>
         <h1>Randomize an item from the loot box!</h1>
-        <button @onclick="onGetRandomYummyItem" style="border-radius: 10px;">Randomize YummyItem</button>
+
+        <div style="display: flex; flex-direction: column; width: 200px;">
+            <label>Buy case</label>
+            <button @onclick="onGetRandomYummyItem" style="border-radius: 30px; margin-bottom: 5px; background-color: green; color: white;">$15</button>
+            <button @onclick="onPayBonuses" class="btn btn-primary" style="border-radius: 30px; margin-bottom: 5px;">
+                <span style="margin-right: 5px;"><i class="fas fa-gift"></i></span>Pay with bonuses
+            </button>
+            <label>*required 100</label>
+
+        </div>
 
         <button @onclick="onGetUntilLemonWillNotBeDropped" style="border-radius: 10px;">Randomize Until Get My Lemon!</button>
 
         <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
 
+        @if (!BonusIsOK)
+        {
+            <label style="font-size: 22px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;">Not enough bonuses!</label>
+        }
+        
         @if (BalanceIsOK)
         {
             @if (yummyItem != null || randIds.Count != 0)
@@ -179,6 +200,8 @@
         {
             <label style="font-size: 22px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;">Invalid balance!</label>
         }
+
+      
     </div>
 
 
@@ -200,8 +223,9 @@
     }
 
 
+    private int _caseBonusCost = 100;
 
-
+    private bool BonusIsOK = true;
     public bool showModal = false;
     private int tries = 0;
     private YummyItem yummyItem;
@@ -216,7 +240,7 @@
     private Dictionary<int, int> MultiStatistics = new Dictionary<int, int>();
 
     protected override async Task OnInitializedAsync()
-    {        
+    {
         BalanceIsOK = (_balance.Balance >= _caseCost) ? true : false;
         var boxes = await context.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
         var box1 = boxes[0];
@@ -263,9 +287,9 @@
     private readonly int _caseCost = 15;
 
     private async Task onGetRandomYummyItem()
-    {        
+    {
         randIds.Clear();
-        BalanceIsOK = (_balance.Balance >= _caseCost) ? true : false;        
+        BalanceIsOK = (_balance.Balance >= _caseCost) ? true : false;
         if (!BalanceIsOK) return;
         _balance.RemoveFromBalance(_caseCost);
         var multis = generator.GenerateMillionMulticast(MultiChance);
@@ -274,7 +298,7 @@
         if (multiCast > 1)
         {
             //if multicasting happend
-            await onMuticastingHappend();
+            await onMuticastingHappend();            
             return;
         }
         else
@@ -283,10 +307,13 @@
             yummyItem = LootList.Find(x => x.Id == randId);
             _currentYummyItem = yummyItem;
             tries++;
-            statistics[yummyItem.Name]++;
-            ShowModal();
+            statistics[yummyItem.Name]++;           
         }
+        _bonus.AddBonuses(_caseBonusCashBack);
+        ShowModal();
     }
+
+    private readonly int _caseBonusCashBack = 10;
 
     private List<YummyItem> randIds = new List<YummyItem>();
 
@@ -304,9 +331,19 @@
         }
         randIds = randIds.OrderByDescending(c => c.Cost).ToList();
         await PlaySound();
-        //Array.Sort(randIds.ToArray(), (x, y) => y.Cost.CompareTo(x.Cost));
-        ShowModal();
+        //Array.Sort(randIds.ToArray(), (x, y) => y.Cost.CompareTo(x.Cost));       
     }
+
+
+    public async Task onPayBonuses()
+    {
+        BonusIsOK = (_bonus.Bonus >= _caseBonusCost) ? true : false;
+        if(!BonusIsOK) return;
+        var totals = _caseBonusCost + _caseBonusCashBack;
+        _bonus.RemoveBonuses(totals);
+        await onGetRandomYummyItem();
+    }
+
 
 
 

@@ -23,6 +23,7 @@
         public void RestartDeposit()
         {
             _balance = 300;
+            UpdateBalance(_balance);
         }
 
         public void UpdateBalance(decimal balance)
