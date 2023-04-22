@@ -1,0 +1,22 @@
+﻿body {
+}
+
+.card-info-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+form label,
+form input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+form input {
+    width: 100%;
+    padding: 5px;
+}
+
+form button {
+    margin-top: 10px;
+}

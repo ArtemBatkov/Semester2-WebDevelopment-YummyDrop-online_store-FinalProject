@@ -3,7 +3,7 @@
     public class BonusService: IBonusService
     {
         public event EventHandler BonusUpdated;
-        private int _bonus = 300;
+        private int _bonus = 0;
         public int Bonus => _bonus;
 
         public void AddBonuses(int bonus)

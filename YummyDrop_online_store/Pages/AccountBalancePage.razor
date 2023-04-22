@@ -1,0 +1,32 @@
+﻿<h3>AccountBalancePage</h3>
+@page "/account-balance-page"
+
+<html>
+<head>
+    <link rel="stylesheet" href="css/card_template.css">
+</head>
+
+<body>
+    <div class="card-info-container">
+        <h2>Card Information</h2>
+        <form id="cardInfoForm">
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" id="cardNumber" name="cardNumber" pattern="[0-9]{16}" required>
+
+            <label for="expiryDate">ExDate:</label>
+            <input type="month" id="expiryDate" name="expiryDate" min="2023-04" required>
+
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv" pattern="[0-9]{3,4}" required>
+
+            <label for="withdrawalAmount">Sum:</label>
+            <input type="number" id="withdrawalAmount" name="withdrawalAmount" required>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
+@code {
+
+}

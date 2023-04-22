@@ -29,16 +29,16 @@
         <div class="top-row px-4 d-flex">
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
 
+            <div>
+                <a href="/account-balance-page" style="text-decoration: none;">Bonuses @BonusService.Bonus</a>
+                <a>Balance $@BalanceService.Balance</a>
+            </div>
+
             <div class="cart">
                 <a href="/cart" style="text-decoration: none;">
                     <img src="/cart.png" alt="Cart">
                     <span class="cart-count">@CartService.CartItemCount</span>
                 </a>
-            </div>
-
-            <div>
-                <a>Balance $@BalanceService.Balance</a>
-                <a>Bonuses @BonusService.Bonus</a>
             </div>
 
         </div>
