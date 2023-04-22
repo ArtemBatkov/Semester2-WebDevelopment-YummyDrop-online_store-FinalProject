@@ -13,6 +13,7 @@ using DbContextSharLab;
 using Blazorise;
 using Blazorise.Bootstrap;
 using YummyDrop_online_store.Services.CartService;
+using YummyDrop_online_store.Services.BalanceService;
 
 internal class Program
 {
@@ -56,6 +57,9 @@ internal class Program
 
 
         builder.Services.AddSingleton<ICartService, CartService>();
+
+        builder.Services.AddSingleton<IBalanceService, BalanceService>();
+
 
 
         var app = builder.Build();

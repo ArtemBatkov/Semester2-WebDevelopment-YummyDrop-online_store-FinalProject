@@ -9,5 +9,6 @@ namespace YummyDrop_online_store.Services.CartService
         event EventHandler CartUpdated;
         public void addToCart(YummyItem yummyItem);
         public List<YummyItem> GetAllCartObjects();
+        public void RemoveFromCart(YummyItem yummyItem);
     }
 }

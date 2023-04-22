@@ -1,9 +1,12 @@
 ﻿@using YummyDrop_online_store.Services.CartService;
 @using YummySharedLibrary;
+@using YummyDrop_online_store.Services.BalanceService;
 
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ICartService CartService
+@inject IBalanceService BalanceService;
+
 
 <PageTitle>YummyDrop_online_store</PageTitle>
 
@@ -33,7 +36,7 @@
                     </div>
 
                     <div >
-                        <a>Balance 0</a>
+                        <a>Balance $@BalanceService.Balance</a>
                         <a>Bonuses 0</a>
                     </div>
 
@@ -56,10 +59,17 @@
     protected override void OnInitialized()
     {
         CartService.CartUpdated += OnCartUpdated;
+        BalanceService.BalanceUpdated += OnBalanceUpdated;
+
         //var len = Cart.getLengthCart();
         //CartService.UpdateCartItemCount(len);
     }
     private void OnCartUpdated(object sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnBalanceUpdated(object sender, EventArgs e)
     {
         InvokeAsync(StateHasChanged);
     }

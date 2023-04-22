@@ -13,20 +13,22 @@
 @using YummyDrop_online_store.Services.GeneratorService;
 @using YummyDrop_online_store.Data;
 @using YummySharedLibrary;
+@using YummyDrop_online_store.Services.BalanceService;
+
 @inject IRandomizeService randomizer;
 @inject IGeneratorService generator;
 @inject ApplicationDbContext context;
 @inject ICartService _cart;
- 
+@inject IBalanceService _balance;
 
 <html>
-    <head>
+<head>
     <link rel="stylesheet" href="css/find_loot.css">
     <link rel="stylesheet" href="css/yummy_item_container.css" />
-     
-    </head>
 
-    <body>
+</head>
+
+<body>
     <div>
         <h1>Randomize an item from the loot box!</h1>
         <button @onclick="onGetRandomYummyItem" style="border-radius: 10px;">Randomize YummyItem</button>
@@ -35,126 +37,152 @@
 
         <button @onclick="onGetThousands" style="border-radius: 10px;">Randomize 1000 times!</button>
 
-
-
-        @if (yummyItem != null || randIds.Count != 0)
+        @if (BalanceIsOK)
         {
-            <div style="margin-bottom: 10px;">
-                <label>You tried: @tries time(s)</label>
-            </div>
-
-           <!--WHILE DEBUGING-->
-           <!--
-            <Blazorise.Modal @bind-Visible="showModal" ModalSize="Blazorise.ModalSize.Small" OnClosing="HandleClosing" PreventClosing="true" @ref="modalRef">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <ModalHeader>
-                            <h3>Modal Title</h3>
-                        </ModalHeader>
-                        <ModalBody>
-                            <p>Modal Body Content</p>
-                        </ModalBody>
-                        <ModalFooter>
-                            <button class="btn btn-success" @onclick="onAcceptItem">Take</button>
-                            <button class="btn btn-danger" @onclick="onSellItem">Sell</button>
-                        </ModalFooter>
-                    </div>
+            @if (yummyItem != null || randIds.Count != 0)
+            {
+                <div style="margin-bottom: 10px;">
+                    <label>You tried: @tries time(s)</label>
                 </div>
-            </Blazorise.Modal>
-                  -->
-           
-            @if(@multiCast < 2)
-            {                
-                <_FindYourLoot yummyItem="@yummyItem" />               
+
+                <Blazorise.Modal @bind-Visible="showModal" ModalSize="Blazorise.ModalSize.Small" OnClosing="HandleClosing" PreventClosing="true" @ref="modalRef">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <ModalHeader>
+                                <h3>
+                                    @if (randIds.Count != 0 && multiCast > 1)
+                                    {
+                                        <text>Congrats! You won @multiCast items! Total sum: $@(randIds.Sum(i => i.Cost))</text>
+
+                                    }
+                                    else
+                                    {
+                                        <text>Congrats! Your win is $@(yummyItem.Cost)</text>
+                                    }
+                                </h3>
+                            </ModalHeader>
+                            <ModalBody>
+                                <p class="text-justify" style="word-wrap: break-word;">
+                                    Press "Take" to add item(s) into your cart
+                                </p>
+                                <p class="text-justify" style="word-wrap: break-word;">
+                                    or
+                                </p>
+                                <p class="text-justify" style="word-wrap: break-word;">
+                                    Press "Deny" to sell it out and obtain some money.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <button class="btn btn-success" @onclick="onAcceptItem">Take</button>
+                                <button class="btn btn-danger" @onclick="onSellItem">Sell</button>
+                            </ModalFooter>
+                        </div>
+                    </div>
+                </Blazorise.Modal>
+
+
+                @if (@multiCast < 2)
+                {
+                    <_FindYourLoot yummyItem="@yummyItem" />
+                }
+                else
+                {
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <label style="font-size: 18px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;">WOW!!! YOU OBTAINED 1 + @(multiCast - 1) = @multiCast items more</label>
+                        <div style="display: flex; justify-content: center;">
+                            @foreach (var item in randIds)
+                            {
+                                <div style="margin-right: 10px;">
+                                    <_FindYourLoot yummyItem="@item" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+
+                }
+
+
+                <div style="margin-top: 15px;">
+                    <label>Your statistic is</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="padding: 0 75px;">Yummy Name</th>
+                                <th style="padding: 0 75px;">Drop Quantity</th>
+                                <th style="padding: 0 75px;">Theoretical Drop Chance</th>
+                                <th style="padding: 0 75px;">Actual Drop Chance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in statistics)
+                            {
+                                <tr>
+                                    <td style="padding: 0 75px;">@item.Key</td>
+                                    <td style="padding: 0 75px;">@item.Value</td>
+                                    <td style="padding: 0 75px;">@(LootList.FirstOrDefault(x => x.Name == item.Key)?.DropChance.ToString("F2"))%</td>
+                                    <td style="padding: 0 75px;">@(((double)item.Value / tries * 100).ToString("F2"))%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label>Multicatsting statistic:</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="padding: 0 75px;"></th>
+                                @foreach (var ch in MultiChance)
+                                {
+                                    <th style="padding: 0 75px;">Multicast @ch.Key</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 0 75px;">Quantity</td>
+                                @foreach (var q in MultiStatistics)
+                                {
+                                    <th style="padding: 0 75px;">@q.Value</th>
+                                }
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 75px;">Theor chance</td>
+                                @foreach (var ch in MultiChance)
+                                {
+                                    <td style="padding: 0 75px;">@ch.Value%</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 75px;">Fact chance</td>
+                                @foreach (var q in MultiStatistics)
+                                {
+                                    <th style="padding: 0 75px;">@(((double)q.Value / MultiStatistics.Sum(x => x.Value) * 100).ToString("F2"))%</th>
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             }
             else
             {
-                <label style="font-size: 18px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;"></label>
-                
-                @foreach(var item in randIds)
-                {
-                    <div style ="display: inline-block; margin-right: 10px;">
-                        <_FindYourLoot yummyItem="@item" />
-                    </div>
-                    <!-- style="display: inline-block; margin-right: 10px;" -->
-                }
+                <div>
+                    <h3>Not randomized yet!</h3>
+                </div>
             }
-
-
-            <div style="margin-top: 15px;">
-                <label>Your statistic is</label>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="padding: 0 75px;">Yummy Name</th>
-                            <th style="padding: 0 75px;">Drop Quantity</th>
-                            <th style="padding: 0 75px;">Theoretical Drop Chance</th>
-                            <th style="padding: 0 75px;">Actual Drop Chance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in statistics)
-                        {
-                            <tr>
-                                <td style="padding: 0 75px;">@item.Key</td>
-                                <td style="padding: 0 75px;">@item.Value</td>
-                                <td style="padding: 0 75px;">@(LootList.FirstOrDefault(x => x.Name == item.Key)?.DropChance.ToString("F2"))%</td>
-                                <td style="padding: 0 75px;">@(((double)item.Value / tries * 100).ToString("F2"))%</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="margin-top: 15px;">
-                <label>Multicatsting statistic:</label>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="padding: 0 75px;"></th>
-                            @foreach (var ch in MultiChance)
-                            {
-                                <th style="padding: 0 75px;">Multicast @ch.Key</th>
-                            }                         
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 0 75px;">Quantity</td>
-                            @foreach(var q in MultiStatistics)
-                            {
-                                <th style="padding: 0 75px;">@q.Value</th>
-                            }
-                        </tr>
-                        <tr>
-                            <td style="padding: 0 75px;">Theor chance</td>
-                            @foreach(var ch in MultiChance){
-                                 <td style="padding: 0 75px;">@ch.Value%</td>
-                            }                           
-                        </tr>
-                        <tr>
-                            <td style="padding: 0 75px;">Fact chance</td>
-                            @foreach (var q in MultiStatistics)
-                            {
-                                <th style="padding: 0 75px;">@(((double)q.Value / MultiStatistics.Sum(x => x.Value)*100).ToString("F2"))%</th>
-                            }
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
         }
         else
         {
-            <div>
-                <h3>Not randomized yet!</h3>
-            </div>
+            <label style="font-size: 22px; font-weight: bold; color: #ff0000; text-shadow: 2px 2px 2px #000000;">Invalid balance!</label>
         }
-
-
     </div>
 
-    </body>
+
+</body>
 </html>
 
 
@@ -188,7 +216,8 @@
     private Dictionary<int, int> MultiStatistics = new Dictionary<int, int>();
 
     protected override async Task OnInitializedAsync()
-    {
+    {        
+        BalanceIsOK = (_balance.Balance >= _caseCost) ? true : false;
         var boxes = await context.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
         var box1 = boxes[0];
         var boxcont = box1.BoxContent1;
@@ -205,7 +234,7 @@
         MultiChance[3] = 2.04;
         MultiChance[4] = 1;
 
-        foreach(var m in MultiChance)
+        foreach (var m in MultiChance)
         {
             MultiStatistics[m.Key] = 0;
         }
@@ -230,27 +259,32 @@
         return randId;
     }
 
-
+    private bool BalanceIsOK = false;
+    private readonly int _caseCost = 15;
 
     private async Task onGetRandomYummyItem()
-    {
+    {        
+        randIds.Clear();
+        BalanceIsOK = (_balance.Balance >= _caseCost) ? true : false;        
+        if (!BalanceIsOK) return;
+        _balance.RemoveFromBalance(_caseCost);
         var multis = generator.GenerateMillionMulticast(MultiChance);
-        multiCast = randomizer.GetRandomId(multis); 
+        multiCast = randomizer.GetRandomId(multis);
         MultiStatistics[multiCast]++;
         if (multiCast > 1)
         {
-            //if multicasting happend  
-            await onMuticastingHappend();            
+            //if multicasting happend
+            await onMuticastingHappend();
             return;
         }
         else
-        {            
+        {
             int randId = generateRandomIdByLootList();
             yummyItem = LootList.Find(x => x.Id == randId);
             _currentYummyItem = yummyItem;
             tries++;
             statistics[yummyItem.Name]++;
-            ShowModal();            
+            ShowModal();
         }
     }
 
@@ -260,9 +294,7 @@
 
     private async Task onMuticastingHappend()
     {
-        randIds.Clear();
-
-        for(int m = 0; m < multiCast; m++)
+        for (int m = 0; m < multiCast; m++)
         {
             int randId = generateRandomIdByLootList();
             var yummyItem = LootList.Find(x => x.Id == randId);
@@ -334,18 +366,31 @@
     private void onAcceptItem()
     {
         HideModal();
-        if (_currentYummyItem != null){
-            _cart.addToCart(_currentYummyItem);
-            //int cartItemCount = _cart.CartItemCount;
-            //_cart.UpdateCartItemCount(cartItemCount);
+        if (randIds.Count != 0 && multiCast > 1)
+        {
+            randIds.ForEach(i => _cart.addToCart(i));
         }
-
-        //var len = Cart.getLengthCart();
+        else
+        {
+            if (_currentYummyItem != null)
+            {
+                _cart.addToCart(_currentYummyItem);
+            }
+        }
     }
 
     private void onSellItem()
     {
         HideModal();
+        if (randIds.Count != 0 && multiCast > 1)
+        {
+            var sum = randIds.Sum(i => i.Cost);
+            _balance.AddToBalance(sum);
+        }
+        else
+        {
+            _balance.AddToBalance(_currentYummyItem.Cost);
+        }
     }
 
 

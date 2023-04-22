@@ -24,6 +24,13 @@ namespace YummyDrop_online_store.Services.CartService
             UpdateCartItemCount(_cart.getLengthCart());
         }
 
+        public void RemoveFromCart(YummyItem yummyItem)
+        {
+            if (yummyItem == null) { return; }
+            _cart.removeFromCart(yummyItem);
+            UpdateCartItemCount(_cart.getLengthCart());
+        }
+
         public List<YummyItem> GetAllCartObjects()
         {
             return _cart.GetAllCartObjects();

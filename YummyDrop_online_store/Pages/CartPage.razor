@@ -1,6 +1,8 @@
 ﻿@page "/cart"
 @using YummySharedLibrary
 @using YummyDrop_online_store.Services.CartService;
+@using YummyDrop_online_store.Services.BalanceService;
+@inject IBalanceService _balance;
 @inject ICartService _cart;
 
 
@@ -12,13 +14,18 @@
 
 @foreach (var item in Cart)
 {
-    <div class="cart-item">
+    <div class="cart-item position-relative">
         <img src="@item.Image" alt="@item.Name" class="cart-item-image" />
 
         <div class="cart-item-details">
             <h3 class="cart-item-title">@item.Name</h3>
             <div class="cart-item-price">$@item.Cost</div>
         </div>
+
+        <button type="button" class="btn btn-danger position-absolute top-0 end-0"
+                onclick="@(() => deleteItem(item))">
+            Delete
+        </button>
     </div>
 }
 
@@ -26,10 +33,19 @@
 @code {
     private List<YummyItem> Cart;
 
+    private void deleteItem(YummyItem item)
+    {
+        _cart.RemoveFromCart(item);
+        _balance.AddToBalance(item.Cost);
+        Cart = _cart.GetAllCartObjects();
+        StateHasChanged();
+    }
+
+
     protected override void OnInitialized()
     {
         Cart = _cart.GetAllCartObjects();
     }
 
-
+    
 }

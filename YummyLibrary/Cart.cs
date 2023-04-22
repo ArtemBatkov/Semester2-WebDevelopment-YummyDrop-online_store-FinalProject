@@ -17,6 +17,11 @@ namespace YummySharedLibrary
            
         }
 
+        public void removeFromCart(YummyItem item)
+        {
+            CartItems.Remove(item);
+        }
+
         public  int getLengthCart()
         {
             return CartItems.Count;
