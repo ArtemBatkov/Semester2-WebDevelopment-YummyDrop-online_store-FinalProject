@@ -12,8 +12,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoreLinq;
 using System.Diagnostics;
 
+
+
+//using NUnit.Framework;
+
 using YummySharedLibrary;
 using DbContextSharLab;
+using YummyDrop_online_store.Services.CartService;
+using YummyDrop_online_store.Services.BonusService;
+using YummyDrop_online_store.Services.BalanceService;
+using Assert = NUnit.Framework.Assert;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace YummyUnitTesting
 {
@@ -29,52 +39,27 @@ namespace YummyUnitTesting
 
         private static  List<YummyItem> LootList;
 
-        //[TestInitialize]
-        //public  async Task TestInitialize()
-        //{
-        //    var services = new ServiceCollection();
-        //    services.AddSingleton<IRandomizeService, RandomizeSerivce>();
-        //    services.AddSingleton<IGeneratorService, GeneratorService>();
-        //    services.AddSingleton<YummyAPIController>();
-
-
-        //    _serviceProvider = services.BuildServiceProvider();
-        //    _contr = _serviceProvider.GetService<YummyAPIController>();
-        //    _generatorService = _serviceProvider.GetService<IGeneratorService>() as GeneratorService;
-        //    _randomizeSerivce = _serviceProvider.GetService<IRandomizeService>() as RandomizeSerivce;
-
-
-        //    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-        //    .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=FruitBoxTable;Trusted_Connection=True;")
-        //    .Options;
-
-
-
-        //    var dbContext = new ApplicationDbContext(options);
-
-        //    _dbcontext = dbContext;
-        //    await _dbcontext.Database.EnsureCreatedAsync();
-        //    var boxes = await _dbcontext.FruitBoxTable.Include(box => box.BoxContent1).ToListAsync();
-        //    var box1 = boxes[0];
-        //    var boxcont = box1.BoxContent1;
-        //    LootList = boxcont;
-        //}
-
-        //[TestCleanup]
-        //public void TestCleanup()
-        //{
-        //    _serviceProvider.Dispose();
-        //}
-        //private static IServiceProvider _serviceProvider;
+        private CartService _cart;
+        private BonusService _bonus;
+        private BalanceService _balance;
+        
         private static IServiceProvider ServiceProvider { get; set; }
 
+        private static string filePath;
+
         [AssemblyInitialize]
-        public static void AssemblyInitialize(TestContext context)
+        public static void AssemblyInitialize(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext context)
         {
+            
             var services = new ServiceCollection();
             services.AddSingleton<IRandomizeService, RandomizeSerivce>();
             services.AddSingleton<IGeneratorService, GeneratorService>();
             services.AddSingleton<YummyAPIController>();
+            
+            
+            services.AddSingleton<IBalanceService, BalanceService>();
+            services.AddSingleton<IBonusService, BonusService>();
+            services.AddSingleton<ICartService, CartService>();
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=FruitBoxTable;Trusted_Connection=True;")
@@ -97,6 +82,10 @@ namespace YummyUnitTesting
         {
             _generatorService = ServiceProvider.GetService<IGeneratorService>() as GeneratorService;
             _randomizeSerivce = ServiceProvider.GetService<IRandomizeService>() as RandomizeSerivce;
+            
+            _cart = ServiceProvider.GetService<ICartService>() as CartService;
+            _bonus = ServiceProvider.GetService<IBonusService>() as BonusService;
+            _balance = ServiceProvider.GetService<IBalanceService>() as BalanceService;
         }
 
         [TestCleanup]
@@ -163,11 +152,6 @@ namespace YummyUnitTesting
             //initialize dictionary
             Dictionary<int, int> Statistics = new Dictionary<int, int>();
             double TotalChance = 0;
-            //foreach (var item in LootList)
-            //{
-            //    Statistics[item.Id] = 0;
-            //    TotalChance += item.DropChance;
-            //}
             int listSize = LootList.Count;
             for (int i = 0; i <  listSize; i++)
             {
@@ -221,7 +205,92 @@ namespace YummyUnitTesting
             }
         }
 
+        
 
+        [TestMethod]
+        [Priority (0)]// add to cart- 0 priority
+        public void TestCartAddings()
+        {
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            int randomId = _randomizeSerivce.GetRandomId(shuffledIds);
+            YummyItem yummyItem = LootList.FirstOrDefault(i => i.Id == randomId);
+            Assert.IsNotNull(yummyItem);
+            var initialCartLen = _cart.GetAllCartObjects().Count();
+            _cart.addToCart(yummyItem);
+            var currentCartLen = _cart.GetAllCartObjects().Count();
+            Assert.AreEqual(1, currentCartLen - initialCartLen);
+            //TestCartRemoveItem();
+        }
 
+        [TestMethod]
+        [Priority(1)]// delete from cart - 1 priority
+        public void TestCartRemoveItem()
+        {
+            var items = _cart.GetAllCartObjects();
+            var initialCartLen = items.Count();
+            Assert.IsTrue(initialCartLen > 0);
+            var yummyItem = items[0];
+            _cart.RemoveFromCart(yummyItem);
+            var currentCartLen = _cart.GetAllCartObjects().Count();
+            Assert.IsTrue(currentCartLen < initialCartLen);
+        }
+
+        [TestMethod]
+        public void TestBalanceIncreased()
+        {
+            var initialBalance = _balance.Balance;
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            int randomId = _randomizeSerivce.GetRandomId(shuffledIds);
+            YummyItem yummyItem = LootList.FirstOrDefault(i => i.Id == randomId);
+            _cart.addToCart(yummyItem);
+            var cost = yummyItem.Cost;
+            _cart.RemoveFromCart(yummyItem);
+            _balance.AddToBalance(cost);
+            var currentBalance = _balance.Balance;
+            Assert.IsTrue(currentBalance > initialBalance);
+        }
+
+        [TestMethod]
+        public void TestBalanceDecreased()
+        {
+            var initialBalance = _balance.Balance;
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            int randomId = _randomizeSerivce.GetRandomId(shuffledIds);
+            YummyItem yummyItem = LootList.FirstOrDefault(i => i.Id == randomId);
+            var caseCost = 15;
+            _balance.RemoveFromBalance(caseCost);
+            var currentBalance = _balance.Balance;
+            Assert.IsTrue(currentBalance < initialBalance);
+        }
+
+        [TestMethod]
+        public void TestBonusIncreased()
+        {
+            var initialBonus = _bonus.Bonus;
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            int randomId = _randomizeSerivce.GetRandomId(shuffledIds);
+            YummyItem yummyItem = LootList.FirstOrDefault(i => i.Id == randomId);
+            var caseBonus = 10;
+            _bonus.AddBonuses(caseBonus);
+            var currentBonus = _bonus.Bonus;
+            Assert.IsTrue(currentBonus > initialBonus);
+        }
+
+        [TestMethod]
+        public void TestBonusDecreased()
+        {
+            _bonus.RestartBonusDeposit();
+            var initialBonus = _bonus.Bonus;
+            var shuffledIds = _generatorService.GenerateMillionIds(LootList);
+            int randomId = _randomizeSerivce.GetRandomId(shuffledIds);
+            YummyItem yummyItem = LootList.FirstOrDefault(i => i.Id == randomId);
+            var caseCostBonus = 100;
+            _bonus.RemoveBonuses(caseCostBonus);
+            var currentBonus = _bonus.Bonus;
+            Assert.IsTrue(currentBonus < initialBonus);
+        }
+ 
+
+        
     }
 }
