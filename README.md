@@ -125,3 +125,75 @@ Change your target project to the migrations project by using the Package Manage
 The method is not fired!
 </pre>
 </div>
+
+---
+
+### Check-In #3 -- Final
+#### What the new features are: 
+<div style="max-width: 800px; word-wrap: break-word;">
+1. New feature was implemented, it is Multicasting at the page. Goal 1 / 3
+<br>2. When multicasting happens some sound effect as well as visual effects are provided at the page. Remark: decrease the volume!
+<br>3. Multicasting chance is generated and worked by the same priniciple as YummyItems.
+<br>4. Added balance at the navigation bar.  Works through all pages! Goal 2 / 3
+<br>5. Added bonus system at the navigation bar. Works through all pages! Goal 3 / 3
+<br>6. Added economic system. Now, opening case costs $15 bucks. Case can be opened by bonuses (100 required). Each open case provides 10 bonuses. Now when an item drops it can be sold or added to the cart.  
+<br>7. Inside the cart an item can be sold out.
+<br>8. Generated a blank page where a user can specify a bank card info and submit the withdral. VALIDATION APPLIED!
+<br>9. Unit Tests were also updated. New methods were added. All test passed.
+<br>10. Added Multicasting statistic at the page. 
+<br><br>
+
+Let's consider how it works now:
+
+![image](https://user-images.githubusercontent.com/110242091/233763371-d1ad0c35-c108-4281-aedc-b74ca87818d0.png)
+
+This how the page looks like now.
+
+![image](https://user-images.githubusercontent.com/110242091/233763406-897c8194-579d-4f4d-817a-97fd74b8d505.png)
+
+You can see, that I was charged for $15 and 10 bonuses were added. Also, the dialog page is shown. 
+
+![image](https://user-images.githubusercontent.com/110242091/233763447-65a8844e-fed7-4ce0-b5af-7c07c6fd50b9.png)
+
+Here is a multicasting statistic. Now it is because of 1 drop item.
+
+![image](https://user-images.githubusercontent.com/110242091/233763464-2d7b4bc3-902d-4ae3-af21-7409635b2cd2.png)
+
+An item was added to my cart. 
+
+![image](https://user-images.githubusercontent.com/110242091/233763482-8a44cd32-d2a4-42c1-b38b-974c09ffbfd4.png)
+
+Now I sold  and my balance has increased, and quantity inside the cart also has changed.
+
+![image](https://user-images.githubusercontent.com/110242091/233763514-09fa2059-fce9-48ae-b25f-19694c0df9d1.png)
+
+If I try to pay with bonuses it says that I can't because 100 required. 
+
+That how's multicasting looks like. The max can be 4 items per time.  
+
+![image](https://user-images.githubusercontent.com/110242091/233763539-110758bc-074f-49dd-a473-009315601c59.png)
+
+If I accept I can see 3 items inside the cart 
+
+![image](https://user-images.githubusercontent.com/110242091/233763729-a3edf8f3-776b-45fe-a542-d0bf33ad9cf3.png)
+
+
+![image](https://user-images.githubusercontent.com/110242091/233763761-3db1c75a-1834-4a30-b3a4-587cc1b72c5e.png)
+
+This is the card detailed page looks like
+
+![image](https://user-images.githubusercontent.com/110242091/233763779-4519f709-39dc-4753-a733-52cbd0f808fb.png)
+
+
+Validation applied
+
+![image](https://user-images.githubusercontent.com/110242091/233763788-338261bd-0627-4e7d-bf74-5a287e1e36e1.png)
+
+
+Also, after 1000 test the distribution for multicasting strives to the truth (theoretical):
+ 
+![image](https://user-images.githubusercontent.com/110242091/233764059-4523591e-017b-4615-b0d6-1acc9fce7755.png)
+
+
+
+
